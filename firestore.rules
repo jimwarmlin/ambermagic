@@ -1,0 +1,35 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // 遊戲管理者
+    function isAdmin() { return request.auth != null && request.auth.token.email in ['jimwarmlin@gmail.com']; }
+
+    // 每個家庭只能讀寫自己的資料（孩子角色、存檔、作答紀錄、備份）；管理者可管理所有家庭
+    match /families/{uid}/{document=**} {
+      allow read, write: if (request.auth != null && request.auth.uid == uid) || isAdmin();
+    }
+
+    // 好友圈
+    match /groups/{gid} {
+      allow read: if request.auth != null;
+      allow create: if request.auth != null && request.resource.data.owner == request.auth.uid;
+      allow update, delete: if request.auth != null && resource.data.owner == request.auth.uid;
+
+      function isOwner() { return get(/databases/$(database)/documents/groups/$(gid)).data.owner == request.auth.uid; }
+      function isApproved() {
+        return exists(/databases/$(database)/documents/groups/$(gid)/members/$(request.auth.uid))
+          && get(/databases/$(database)/documents/groups/$(gid)/members/$(request.auth.uid)).data.status == 'approved';
+      }
+
+      match /members/{mid} {
+        allow read: if request.auth != null && (request.auth.uid == mid || isOwner() || isApproved());
+        allow create: if request.auth != null && request.auth.uid == mid
+          && (request.resource.data.status == 'pending' || isOwner());
+        allow update: if request.auth != null
+          && (isOwner() || (request.auth.uid == mid && request.resource.data.status == resource.data.status));
+        allow delete: if request.auth != null && (request.auth.uid == mid || isOwner());
+      }
+    }
+  }
+}
