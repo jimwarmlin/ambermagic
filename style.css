@@ -548,3 +548,4 @@ table.stats th{color:var(--ink-soft);font-weight:400}
 .npc.cheer .body{animation:cheer .8s ease-out}
 .npc.no .body{animation:nope .7s ease-in-out}
 .stats tr.dis td{color:#aaa}
+.gatecard .loading,.frameinner .loading{font-size:calc(var(--u)*30);color:#b0548a;animation:flicker 1.6s infinite}
