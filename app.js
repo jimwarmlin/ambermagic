@@ -5,10 +5,12 @@ const W = 1448, H = 1086;
 const IMG = Object.assign({
   map: 'img/map.webp', bakery: 'img/bakery.webp', result: 'img/result.webp',
   starA: 'img/star_a.webp', starB: 'img/star_b.webp', bearHappy: 'img/bear_happy.webp', bearWow: 'img/bear_wow.webp',
-  bearThink: 'img/bear_think.webp', avatar: 'img/avatar.webp', bearBody: 'img/bear_body.webp', gate: 'img/gate.webp', frameWide: 'img/frame_wide.webp', frameCard: 'img/frame_card.webp', hallChinese: 'img/hall_chinese.webp', hallScience: 'img/hall_science.webp', hallMarket: 'img/hall_market.webp', boss: 'img/boss.webp', forest: 'img/forest.webp', mathMap: 'img/mathmap.webp', music: 'img/music.webp', home: 'img/home.webp'
+  bearThink: 'img/bear_think.webp', avatar: 'img/avatar.webp', bearBody: 'img/bear_body.webp', gate: 'img/gate.webp', frameWide: 'img/frame_wide.webp', frameCard: 'img/frame_card.webp', hallChinese: 'img/hall_chinese.webp', hallScience: 'img/hall_science.webp', hallMarket: 'img/hall_market.webp', boss: 'img/boss.webp', forest: 'img/forest.webp', mathMap: 'img/mathmap.webp', music: 'img/music.webp', shopBg: 'img/shop_bg.webp', homeBg: 'img/home_bg.webp', badgeBg: 'img/badge_bg.webp', statusBg: 'img/status_bg.webp'
 }, window.INLINE_IMG || {});
-const AV = '11070800'; const vq = u => (u && !String(u).startsWith('data:')) ? u + '?v=' + AV : u;
+const AV = '11070900'; const vq = u => (u && !String(u).startsWith('data:')) ? u + '?v=' + AV : u;
 Object.keys(IMG).forEach(k => { IMG[k] = vq(IMG[k]); });
+// 道具小圖示（img/icon/）
+const icon = (n, cls = 'ic') => `<img class="${cls}" src="${vq('img/icon/' + n + '.webp')}" alt="">`;
 const CFG = Object.assign({ sheetCsvUrl: '', subject: '數學' }, window.BUNNY_CONFIG || {});
 const WALK = {"g": 12, "rows": ["0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000", "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000", "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000", "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000", "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000", "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000", "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000", "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000", "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000", "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000", "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000", "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000", "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000", "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000", "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000", "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000", "0000000000000000000000000000000000000000000000000000000000000000000110011000000000000000000000000000000000000000000000000", "0000000000000000000000000000000000000000000000000000000000000000000111011000000000000000000000000000000000000000000000000", "0000000000000000000000000000000000000000000000000000000000000000000011110000000000000000000000000000000000000000000000000", "0000000000000000000000000000000000000000000000000000000000000000000011000000000000000000000000000000000000000000000000000", "0000000000000000000000000000000000000000000000000000000000000000000111000000000000000000000000000000000000000000000000000", "0000000000000000000000000000000000000000000000000000000000000000000111000000000000000000000000000000000000000000000000000", "0000000000000000000000000000000000000000000000000000000000000000000011110000000000000000000000000000000000000000000000000", "0000000000000000000000000000000000000000000000000000000000000000000001111000000000000000000000000000000000000000000000000", "0000000000000000000000000000000000000000000000000000000000000000000001111100000000000000000000000000000000000000000000000", "0000000000000000000000000000000000000000000000000000000000000000000000111100000000000000000000000000000000000000000000000", "0000000000000000000000000000000000000000000000000000000000000000000000111000000000000000000000000000000000000000000000000", "0000000000000000000000000000000000000000001100001000000000000000000011110000000000000000000000000000000000000000000000000", "0000000000000000000000000000000000000000011100001000000000000000011111000000000000000000000000000000000000000000000000000", "0000000000000000000000000000000000000000011100011100000000000001111100000000000000000000000000000000000000000000000000000", "0000000000000000000000000000000000000000111111111111000000000111100000000000000000000000000000000000000000000000000000000", "0000000000000000000000000000000000000000111111111111000000001111000000000000000000000000000000000000000000000000000000000", "0000000000000000000000000000000000000000000001111111000000001110000000000000000000000000000000000000000000000000000000000", "0000000000000000000000000000000000000000000001111111000000001110000000000000000000000000000000000000000000000000000000000", "0000000000000000000000000000000000000000000000001111000000001110000000000000000000000000000000000000000000000000000000000", "0000000000000000000000000000000000000011000000001111000000011110000000000000000000000000000000000000000000000000000000000", "0000000000000000000000000000000000000011100000000111000000111111000000000000000000011110000000000000000000000000000000000", "0000000000000000000000000000000000000001110000000111111001111111100000000000000000111100000000000000000000000000000000000", "0000000000000000000000000000000000000001110000000001111111111111100000000000000001110000000000000000000000000000000000000", "0000000000000000000000000000000000000011100000000001111111111111111011000000000011110000000000000000000000000000000000000", "0000000000000000000000000000000000000111100000000000111110000000111111000000000001110000000000000000000000000000000000000", "0000000000000000000000000000000000001111000000000000111100000000011111100000000001110000000000000000000000000000000000000", "0000000000000000000000000000000000001110000000000001111100000000011111110000000001111000000000000000000000000000000000000", "0000000000000000000000000000000000001111000000011111111100000000001111111000000000111000000000000000000000000000000000000", "0000000000000000000000000000000000000111000000111111111000000000001111111100000001110000000000000000000000000000000000000", "0000000000000000000000000000000000000011110000111111110000000000000111111111000001110000000000000000000000000000000000000", "0000000000000000000000111100000000000011111100111110010000000000000101111111000111110110000000000000000000000000000000000", "0000000000000000000000011110000000000011111111111110001000000000001000111111111111101111101000000000000000000000000000000", "0000000000000000000000000111100000000111111111111110000000000000000001111111111110000000001000000000000000000000000000000", "0000000000000000000000000011100000001111011101111111000000000000100001111111111100000000011100000000000000000000000000000", "0000000000000000000000000001110000011110011101111111100010111100100011111111111110000000111110000000000000000000000000000", "0000000000000000000000000001111111111110011100000111111111111111111111110011110111000000111111111100000000000000000000000", "0000000000000000000000011111111111110001000000001111111111111111111111110000000111100000111111111100100000000000000000000", "0000000000000000000000000000000000000000000000000100011111111111111100010000000111110000111111110000100000000000000000000", "0000000000000000000000000000000000000000000000000000000111111111110000000000001101111000111111110001111000000000000000000", "0000000000000000000000000000000000000000000000000000000111111111110000000000011000111100111111110111110000000000000000000", "0000000000000000000000000000000000000000000000000000000011111110010000000001110000011111111111111111000000000000000000000", "0000000000000000000000000000000000000000000000110000001011111000010000000011000000000111111111111100000000000000000000000", "0000000000000000000000000000000000000000000000001111111111110000000000000000000000000000000000000000000000000000000000000", "0000000000000000000000000000000000000000000000000000111111110000000000000000000000000000000000000000000000000000000000000", "0000000000000000000000000000000000000000000000000000011111000000000000000000000000000000000000000000000000000000000000000", "0000000000000000000000000000000000000000000000000000111110000000000000000000000000000000000000000000000000000000000000000", "0000000000000000000000000000000000000000000000000001111100000000000000000000000000000000000000000000000000000000000000000", "0000000000000000000000000000000000000000000000000011111000000000000000000000000000000000000000000000000000000000000000000", "0000000000000000000000000000000000000000000000000011111000000000000000000000000000000000000000000000000000000000000000000", "0000000000000000000000000000000000000000000000000011111100000000000000000000000000000000000000000000000000000000000000000", "0000000000000000000000000000000000000000000000000001111110000000000000000000000000000000000000000000000000000000000000000", "0000000000000000000000000000000000000000000000000001111110000000000000000000000000000000000000000000000000000000000000000", "0000000000000000000000000000000000000000000000000001111111000000000000000000000000000000000000000000000000000000000000000", "0000000000000000000000000000000000000000000000000000111111110000000000000000000000000000000000000000000000000000000000000", "0000000000000000000000000000000000000000000000000000111111110000000000000000000000000000000000000000000000000000000000000", "0000000000000000000000000000000000000000000000000000111111111000000000000000000000000000000000000000000000000000000000000", "0000000000000000000000000000000000000000000000000000111111110000000000000000000000000000000000000000000000000000000000000", "0000000000000000000000000000000000000000000000000001111111110000000000000000000000000000000000000000000000000000000000000", "0000000000000000000000000000000000000000000000000011111111100000000000000000000000000000000000000000000000000000000000000", "0000000000000000000000000000000000000000000000000111111111000000000000000000000000000000000000000000000000000000000000000", "0000000000000000000000000000000000000000000000001111111100000000000000000000000000000000000000000000000000000000000000000", "0000000000000000000000000000000000000000000000011111111000000000000000000000000000000000000000000000000000000000000000000", "0000000000000000000000000000000000000000000001111111110000000000000000000000000000000000000000000000000000000000000000000", "0000000000000000000000000000000000000000000111111111100000000000000000000000000000000000000000000000000000000000000000000", "0000000000000000000000000000000000000000000000110011100000000000000000000000000000000000000000000000000000000000000000000", "0000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000000000000", "0000000000000000000000000000000000000000000000000010011000000000000000000000000000000000000000000000000000000000000000000", "0000000000000000000000000000000000000000000000000011111100000000000000000000000000000000000000000000000000000000000000000", "0000000000000000000000000000000000000000000000000000111100000000000000000000000000000000000000000000000000000000000000000", "0000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000000", "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000", "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000", "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000", "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000", "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"]};
 
@@ -65,11 +67,16 @@ const SFX = {
 };
 
 /* ---------- background music (mp3) ---------- */
-const TRACKS = Object.assign({ town: vq('audio/map.mp3'), cafe: vq('audio/kitchen.mp3'), home: vq('audio/home.mp3'), library: vq('audio/library.mp3'), greenhouse: vq('audio/greenhouse.mp3'), market: vq('audio/market.mp3'), birdie: vq('audio/birdie.mp3'), tower: vq('audio/tower.mp3'), forest: vq('audio/forest.mp3') }, window.INLINE_AUDIO || {});
-// 每個場景的背景音樂（沒列到的場景用地圖音樂；結果畫面沿用原本的音樂）
-const SCENE_MUSIC = { bakery: 'cafe', mathmap: 'cafe', home: 'home', hall_chinese: 'library', hall_science: 'greenhouse', hall_literacy: 'market', music: 'birdie', boss: 'tower', forest: 'forest' };
+const TRACKS = Object.assign({
+  town: vq('audio/map.mp3'), cafe: vq('audio/cookingmath.mp3'), library: vq('audio/library.mp3'), greenhouse: vq('audio/greenhouse.mp3'),
+  market: vq('audio/market.mp3'), birdie: vq('audio/birdie.mp3'), forest: vq('audio/forest.mp3'), dragon: vq('audio/dragon.mp3'),
+  home: vq('audio/home.mp3'), shop: vq('audio/shop.mp3')
+}, window.INLINE_AUDIO || {});
+// 每個場景的背景音樂（兔兔小屋 home 開放後會用到）
+const SCENE_TRACK = { map: 'town', result: 'town', bakery: 'cafe', mathmap: 'cafe', hall_chinese: 'library', hall_science: 'greenhouse', hall_literacy: 'market',
+  music: 'birdie', badges: 'town', status: 'town', forest: 'forest', boss: 'dragon', shop: 'shop', home: 'home' };
 const Music = (() => {
-  let unlocked = false, want = '', cur = '', ducked = false; const base = 0.55; const tr = {};
+  let unlocked = false, want = '', cur = '', ducked = false, duckLv = 0.35; const base = 0.55; const tr = {};
   function T(name) { if (!tr[name]) { const c = AC(); const g = c.createGain(); g.gain.value = 0.0001; g.connect(c.destination); tr[name] = { g }; } return tr[name]; }
   function fade(name, v, dur) {
     const t = tr[name]; if (!t) return; const c = AC(), g = t.g.gain; v = Math.max(v, 0.0001);
@@ -88,7 +95,7 @@ const Music = (() => {
         try { c.createMediaElementSource(el).connect(t.g); t.mode = 'ga'; } catch (e) { t.mode = 'vol'; } t.el = el; }
       const p = t.el.play(); if (p && p.catch) p.catch(() => {});
     }
-    fade(name, ducked ? base * 0.35 : base, 1.0);
+    fade(name, ducked ? base * duckLv : base, 1.0);
   }
   function stop(name) {
     const t = tr[name]; if (!t) return; fade(name, 0.0001, 0.6);
@@ -103,7 +110,7 @@ const Music = (() => {
     want(n) { want = n; apply(); },
     unlock() { if (unlocked) return; unlocked = true; try { AC(); } catch (e) {} apply(); },
     refresh() { if (S.settings.music) cur = ''; apply(); },
-    duck(on) { ducked = on; if (cur) fade(cur, on ? base * 0.35 : base, 0.3); },
+    duck(on, lv) { ducked = on; duckLv = lv == null ? 0.35 : lv; if (cur) fade(cur, on ? base * duckLv : base, 0.3); },
     pause() { Object.values(tr).forEach(t => t.el && t.el.pause()); },
     resume() { const t = tr[cur]; if (t && t.el && S.settings.music) { const p = t.el.play(); if (p && p.catch) p.catch(() => {}); } }
   };
@@ -114,10 +121,16 @@ stage.addEventListener('pointerdown', () => Music.unlock(), true);
 /* ---------- save (per kid: local cache + cloud) ---------- */
 const KEY = 'bunny-world-v1';
 const today = () => { const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); };
-const fresh = () => ({ v: 2, coins: 0, xp: 0, level: 1, stars: 0, rounds: 0, stats: {}, wrongLog: [], daily: {}, settings: { sound: true, music: true, limit: 0 }, introDone: false, pos: null, focus: null, updatedAt: 0, snapDate: '' });
+const fresh = () => ({ v: 2, coins: 0, xp: 0, level: 1, stars: 0, rounds: 0, stats: {}, wrongLog: [], daily: {}, settings: { sound: true, music: true, limit: 0 }, introDone: false, pos: null, focus: null, updatedAt: 0, snapDate: '', inv: { furn: [], hat: [], cape: [], wand: [] }, equip: { hat: '', cape: '', wand: '' }, prog: null, badges: {}, home: { items: [] } });
 let S = fresh();
 let KID = null;
-function normalize() { S.settings = Object.assign({ sound: true, music: true, limit: 0 }, S.settings || {}); S.stats = S.stats || {}; S.wrongLog = S.wrongLog || []; S.daily = S.daily || {}; }
+function normalize() { S.settings = Object.assign({ sound: true, music: true, limit: 0 }, S.settings || {}); S.stats = S.stats || {}; S.wrongLog = S.wrongLog || []; S.daily = S.daily || {};
+  S.inv = Object.assign({ furn: [], hat: [], cape: [], wand: [] }, S.inv || {}); S.equip = Object.assign({ hat: '', cape: '', wand: '' }, S.equip || {});
+  S.badges = S.badges || {}; S.home = S.home || { items: [] }; S.home.items = S.home.items || [];
+  if (!S.prog) { // 第一次：從過去的單元星星推算各科完成回合數
+    const r = {}; Object.keys(S.unitStars || {}).forEach(k => { const sj = k.split('|')[0]; r[sj] = (r[sj] || 0) + 1; });
+    S.prog = { rounds: r, songs: r['音樂'] || 0, saved: 0, quests: 0 }; }
+  S.prog.rounds = S.prog.rounds || {}; }
 const rankOf = s => s ? (s.level || 1) * 1e7 + (s.xp || 0) * 100 + (s.rounds || 0) : -1;
 let saveT = null;
 function save() {
@@ -226,17 +239,31 @@ function screen(name, bg) {
 }
 let curName = '';
 function loadBg(name) { const s = screens[name]; if (s && s._bg && !s._im.src) { s._im.src = s._bg; s.style.setProperty('--src', `url("${s._bg}")`); } }
-function warmUp() { const names = Object.keys(screens); let i = 0; const next = () => { if (i >= names.length) return; const n = names[i++]; const s = screens[n]; if (s._bg && !s._im.src) { const pre = new Image(); pre.onload = pre.onerror = () => setTimeout(next, 150); pre.src = s._bg; } else next(); }; setTimeout(next, 2500); }
+// 其他場景的背景圖：進到地圖一陣子後，才在背景慢慢下載（不跟地圖搶網路）
+let warmed = false;
+function warmUp() {
+  if (warmed) return; warmed = true;
+  const list = ['bakery', 'hallChinese', 'hallScience', 'hallMarket', 'shopBg', 'music', 'forest', 'boss', 'mathMap'].map(k => IMG[k]).filter(Boolean);
+  let i = 0; const next = () => { if (i >= list.length) return; const pre = new Image(); try { pre.fetchPriority = 'low'; } catch (e) {} pre.onload = pre.onerror = () => setTimeout(next, 400); pre.src = list[i++]; };
+  setTimeout(next, 6000);
+}
+// 場景第一次進去時才建立（開遊戲時只建地圖和結算畫面，讀取比較快）
+const BUILDERS = {};
+function ensure(name) {
+  if (screens[name] || !BUILDERS[name]) return;
+  BUILDERS[name](); fit();
+  if (name === 'bakery' && KID && bakeryUI) bakeryUI.setAnimal(KID.animal);
+}
 function go(name, fade) {
-  loadBg(name);
-  const sw = () => { Object.values(screens).forEach(s => s.classList.remove('on')); screens[name].classList.add('on'); curName = name; refreshHUD(); if (name !== 'result') Music.want(SCENE_MUSIC[name] || 'town'); if (onShow[name]) onShow[name](); };
+  ensure(name); loadBg(name);
+  const sw = () => { Object.values(screens).forEach(s => s.classList.remove('on')); screens[name].classList.add('on'); curName = name; refreshHUD(); Music.want(SCENE_TRACK[name] || 'town'); if (onShow[name]) onShow[name](); if (KID) { checkBadges(); if (SAFE_SCR.includes(name)) setTimeout(showBadgeQueue, name === 'result' ? 2600 : 700); } };
   if (fade) { const c = el('div', 'curtain', stage); setTimeout(sw, 300); setTimeout(() => c.remove(), 720); } else sw();
 }
 const onShow = {};
 function btn(parent, cls, x, y, w, h, onTap, label) { const b = el('button', cls, parent); place(b, x, y, w, h); if (label) b.setAttribute('aria-label', label); b.addEventListener('pointerdown', e => e.stopPropagation()); b.addEventListener('click', e => { e.stopPropagation(); SFX.tap(); onTap(e); }); return b; }
 function rbtn(parent, cx, cy, r, onTap, label) { return btn(parent, 'hot', cx - r, cy - r, 2 * r, 2 * r, onTap, label); }
 function toast(msg) { const t = el('div', 'toast', stage, esc(msg)); setTimeout(() => t.remove(), 2200); }
-function floatText(text, x, y) { const f = el('div', 'float', stage, esc(text)); f.style.left = pctX(x); f.style.top = pctY(y); setTimeout(() => f.remove(), 1300); }
+function floatText(text, x, y) { const t = String(text); const f = el('div', 'float', stage, t.includes('金幣') ? icon('coin', 'coin') + esc(t.replace(/\s*金幣/, '')) : esc(t)); f.style.left = pctX(x); f.style.top = pctY(y); setTimeout(() => f.remove(), 1300); }
 function modal(html, opts = {}) {
   const m = el('div', 'modal', stage); const c = el('div', 'card' + (opts.wide ? ' wide' : ''), m, html);
   m.addEventListener('pointerdown', e => e.stopPropagation());
@@ -270,7 +297,7 @@ function makeHUD(s, cfg) {
   if (cfg.face) { h.face = el('div', 'avface', s); circ(h.face, ...cfg.face); }
   if (cfg.avatar) rbtn(s, ...cfg.avatar, showProfile, '我的角色');
   if (cfg.settings) rbtn(s, ...cfg.settings, showSettings, '設定');
-  if (cfg.bag) rbtn(s, ...cfg.bag, () => toast('背包和裝備在第二階段開放喔！'), '背包');
+  if (cfg.bag) rbtn(s, ...cfg.bag, () => showBag(), '背包');
   huds.push(h); return h;
 }
 function refreshHUD() {
@@ -302,8 +329,8 @@ function kitHUD(s, o) {
   h.xp = el('div', 'xp', s, '<i></i><b></b>'); place(h.xp, 232, 48, 230, 32);
   const cb = el('div', 'kitimg', s); place(cb, 480, 36, 210, 58); cb.style.backgroundImage = 'var(--ui-coinbar)';
   h.coin = el('div', 'cointext', s); place(h.coin, 530, 40, 150, 50);
-  const R = [o.home && ['home', () => o.home()], ['bag', () => toast('背包和裝備在第二階段開放喔！')], ['quest', showQuests], ['gear', showSettings]].filter(Boolean);
-  R.forEach((r, i) => kitBtn(s, r[0], 1394 - (R.length - i) * 98, 14, 88, 88, r[1], { home: '回地圖', bag: '背包', quest: '今日任務', gear: '設定' }[r[0]]));
+  const R = [o.home && ['home', () => o.home()], ['bag', () => showBag()], ['quest', openBadges], ['gear', showSettings]].filter(Boolean);
+  R.forEach((r, i) => kitBtn(s, r[0], 1394 - (R.length - i) * 98, 14, 88, 88, r[1], { home: '回地圖', bag: '背包', quest: '任務徽章', gear: '設定' }[r[0]]));
   huds.push(h); return h;
 }
 
@@ -363,18 +390,24 @@ function nearestCell(x, y) {
     if (best) return best; }
   return null;
 }
+// A* 尋路：用二元堆積，iPad 上拖曳時也不會卡
+const NCELL = GW * GH, AG = new Float32Array(NCELL), AFROM = new Int32Array(NCELL), ASEEN = new Uint32Array(NCELL), ADONE = new Uint32Array(NCELL); let AGEN = 0;
 function astar(a, b) {
-  const key = (x, y) => y * GW + x; const open = [[0, a[0], a[1]]]; const g = new Map([[key(...a), 0]]); const from = new Map(); const closed = new Set();
-  const h = (x, y) => { const dx = Math.abs(x - b[0]), dy = Math.abs(y - b[1]); return Math.max(dx, dy) + 0.414 * Math.min(dx, dy); };
-  while (open.length) {
-    let bi = 0; for (let i = 1; i < open.length; i++) if (open[i][0] < open[bi][0]) bi = i;
-    const [, x, y] = open.splice(bi, 1)[0]; const k = key(x, y); if (closed.has(k)) continue; closed.add(k);
-    if (x === b[0] && y === b[1]) { const path = [[x, y]]; let c = k; while (from.has(c)) { c = from.get(c); path.push([c % GW, Math.floor(c / GW)]); } return path.reverse(); }
+  AGEN++; const gen = AGEN, sk = a[1] * GW + a[0], tk = b[1] * GW + b[0], bx = b[0], by = b[1];
+  const hk = [], hf = [];
+  const h = (x, y) => { const dx = Math.abs(x - bx), dy = Math.abs(y - by); return Math.max(dx, dy) + 0.414 * Math.min(dx, dy); };
+  function push(k, f) { let i = hk.length; hk.push(k); hf.push(f); while (i > 0) { const p = (i - 1) >> 1; if (hf[p] <= f) break; hk[i] = hk[p]; hf[i] = hf[p]; i = p; } hk[i] = k; hf[i] = f; }
+  function pop() { const top = hk[0], lk = hk.pop(), lf = hf.pop(), n = hk.length; if (n) { let i = 0; for (;;) { const l = 2 * i + 1, r = l + 1; let m = -1, mf = lf; if (l < n && hf[l] < mf) { m = l; mf = hf[l]; } if (r < n && hf[r] < mf) { m = r; mf = hf[r]; } if (m < 0) break; hk[i] = hk[m]; hf[i] = hf[m]; i = m; } hk[i] = lk; hf[i] = lf; } return top; }
+  ASEEN[sk] = gen; AG[sk] = 0; AFROM[sk] = -1; push(sk, h(a[0], a[1]));
+  while (hk.length) {
+    const k = pop(); if (ADONE[k] === gen) continue; ADONE[k] = gen;
+    if (k === tk) { const path = []; let c = k; while (c !== -1) { path.push([c % GW, Math.floor(c / GW)]); c = AFROM[c]; } return path.reverse(); }
+    const x = k % GW, y = (k - x) / GW, gk = AG[k];
     for (let dx = -1; dx <= 1; dx++) for (let dy = -1; dy <= 1; dy++) {
       if (!dx && !dy) continue; const nx = x + dx, ny = y + dy; if (!walkable(nx, ny)) continue;
       if (dx && dy && (!walkable(x + dx, y) || !walkable(x, y + dy))) continue;
-      const nk = key(nx, ny), ng = g.get(k) + (dx && dy ? 1.414 : 1);
-      if (ng < (g.has(nk) ? g.get(nk) : 1e9)) { g.set(nk, ng); from.set(nk, k); open.push([ng + h(nx, ny), nx, ny]); }
+      const nk = ny * GW + nx; if (ADONE[nk] === gen) continue; const ng = gk + (dx && dy ? 1.414 : 1);
+      if (ASEEN[nk] !== gen || ng < AG[nk]) { ASEEN[nk] = gen; AG[nk] = ng; AFROM[nk] = k; push(nk, ng + h(nx, ny)); }
     }
   }
   return null;
@@ -404,7 +437,7 @@ function buildMap() {
     const d = i ? 'M300,560 C420,480 520,640 640,560 S860,500 980,620 S760,760 520,700 S260,640 300,560' : 'M1000,300 C1100,220 1220,320 1150,420 S960,520 900,420 S880,260 1000,300';
     b.style.offsetPath = `path('${d}')`;
     let t = Math.random(); const sp = 1 / rr(26, 34); let lt = 0;
-    (function fly(now) { const dt = Math.min(.05, (now - lt) / 1000 || .016); lt = now; t = (t + sp * dt) % 1; b.style.offsetDistance = (t * 100) + '%'; requestAnimationFrame(fly); })(0);
+    (function fly(now) { const dt = Math.min(.05, (now - lt) / 1000 || .016); lt = now; if (curName === 'map' && !document.hidden) { t = (t + sp * dt) % 1; b.style.offsetDistance = (t * 100) + '%'; } requestAnimationFrame(fly); })(0);
   });
   // walk layer
   const layer = el('div', 'walklayer', s);
@@ -412,22 +445,28 @@ function buildMap() {
     { name: '甜甜餐廳', box: [1061, 416, 251, 217], label: [1186, 636], open: true, go: 'bakery', door: [1095, 640] },
     { name: '星語魔法館', box: [394, 63, 245, 300], label: [516, 392], open: true, go: 'hall_chinese', door: [560, 400] },
     { name: '月光藥草館', box: [987, 148, 359, 230], label: [1166, 392], open: true, go: 'hall_science', door: [1065, 420] },
-    { name: '星光市集', box: [870, 700, 560, 270], label: [1040, 990], open: true, go: 'hall_literacy', door: [990, 760] },
+    { name: '星光市集', box: [870, 700, 370, 270], label: [1040, 990], open: true, go: 'hall_literacy', door: [990, 760] },
+    { name: '家具店與裝備店', box: [1245, 725, 203, 250], label: [1330, 668], open: true, go: 'shop', door: [1010, 745] },
     { name: '小鳥音樂亭', box: [257, 650, 234, 240], label: [374, 900], open: true, go: 'music', door: [330, 680] },
     { name: '兔兔小屋', box: [97, 331, 251, 240], label: [222, 588], open: true, go: 'home', door: [300, 590] },
     { name: '魔王試煉塔', box: [759, 17, 140, 148], label: [826, 168], open: true, go: 'boss', door: [845, 190] },
     { name: '迷霧森林', box: [0, 150, 300, 170], label: [160, 292], open: true, go: 'forest', door: [120, 560] }
   ];
   for (const p of places) {
-    if (p.go === 'bakery') { const g = el('div', 'glow', s); place(g, p.box[0] + 30, p.box[1] + 30, p.box[2] - 60, p.box[3] - 60); }
-    btn(s, 'hot rect', ...p.box, () => walkTo(p.door[0], p.door[1], () => p.open ? enterPlace(p.go) : bunnySay(`${p.name}第二階段開放，敬請期待！`)), p.name);
     const lab = el('div', 'plate' + (p.go === 'bakery' ? ' hero' : p.open ? '' : ' locked'), s, (p.open ? '' : ICON.lock) + esc(p.name) + (p.go === 'boss' ? '<small class="lvtag">Lv.3</small>' : '')); place(lab, p.label[0], p.label[1]);
-    if (p.go === 'bakery') { const mk = el('div', 'marker', s, '！'); place(mk, p.box[0] + p.box[2] / 2 + 85, p.box[1] + 95); }
+    p.plate = lab;
   }
+  // 點到建築物或名牌：走到門口再進去
+  function placeAt(pt) {
+    for (const p of places) { const r = p.plate.getBoundingClientRect(); if (!r.width) continue; const a = toStage({ clientX: r.left, clientY: r.top }), b = toStage({ clientX: r.right, clientY: r.bottom }); if (pt.x >= a.x - 8 && pt.x <= b.x + 8 && pt.y >= a.y - 8 && pt.y <= b.y + 8) return p; }
+    for (const p of places) { const [x, y, w, h] = p.box; if (pt.x >= x && pt.x <= x + w && pt.y >= y && pt.y <= y + h) return p; }
+    return null;
+  }
+  function visit(p) { SFX.tap(); walkTo(p.door[0], p.door[1], () => p.open ? enterPlace(p.go) : bunnySay(`${p.name}第二階段開放，敬請期待！`)); }
   // HUD (after layer so it sits on top)
   makeHUD(s, { face: [85, 77, 55], lv: [188, 66], xp: [226, 55, 218, 30], coin: [962, 38, 116, 46], avatar: [85, 77, 62], bag: [1190, 60, 46], settings: [1385, 60, 46] });
-  rbtn(s, 1100, 60, 30, () => toast('去甜甜餐廳答題就能賺金幣喔！'), '賺金幣');
-  rbtn(s, 1287, 60, 46, showQuests, '今日任務');
+  rbtn(s, 1100, 60, 30, () => toast('去各館答題就能賺金幣喔！'), '賺金幣');
+  rbtn(s, 1287, 60, 46, openBadges, '任務徽章');
 
   // the bunny (sprite animation + perspective)
   const BW = 120, BH = 136;
@@ -482,22 +521,32 @@ function buildMap() {
     if (walkable(Math.floor(x / GS), Math.floor(y / GS))) pts.push({ x, y });
     pts = smooth([{ x: B.x, y: B.y }, ...pts]).slice(1);
     B.path = pts; B.onArrive = cb || null;
-    if (!B.moving || !raf) { B.moving = true; spr.clear(); wk.classList.add('walking'); last = performance.now(); raf = requestAnimationFrame(tick); }
+    // 如果動畫迴圈被 iPad 暫停（切換 App、跳出視窗），重新啟動它
+    if (!B.moving || !raf || performance.now() - last > 300) { if (raf) cancelAnimationFrame(raf); B.moving = true; spr.clear(); wk.classList.add('walking'); last = performance.now(); raf = requestAnimationFrame(tick); }
     const end = pts[pts.length - 1] || { x: B.x, y: B.y };
     const r = el('div', 'ripple', s); r.style.left = pctX(end.x); r.style.top = pctY(end.y); setTimeout(() => r.remove(), 650);
   }
-  // pointer: tap or drag to move
-  let dragging = false, lastRe = 0, downAt = null;
+  // pointer: tap or drag to move（只跟著第一根手指，其他手指或手掌碰到不會干擾）
+  let dragging = false, lastRe = 0, downAt = null, activeId = null, dragTgt = null;
   layer.addEventListener('pointerdown', e => {
+    if (activeId !== null && activeId !== e.pointerId) return;
     const p = toStage(e); if (p.y < 130 && (p.x < 470 || p.x > 880)) return;
-    dragging = true; downAt = p; try { layer.setPointerCapture(e.pointerId); } catch (err) {}
+    e.preventDefault();
+    dragging = true; downAt = p; dragTgt = null; activeId = e.pointerId; try { layer.setPointerCapture(e.pointerId); } catch (err) {}
     if (Math.hypot(p.x - B.x, p.y - (B.y - 65 * B.k)) < 62 * B.k) { if (!B.moving) cheer(); bunnySay(LINES()[rnd(LINES().length)]); SFX.ok(); return; }
+    const pl = placeAt(p); if (pl) return visit(pl);
     walkTo(p.x, p.y, checkDoor);
   });
-  layer.addEventListener('pointermove', e => { if (!dragging) return; const now = performance.now(); if (now - lastRe < 110) return; lastRe = now; const p = toStage(e); if (downAt && Math.hypot(p.x - downAt.x, p.y - downAt.y) < 25) return; walkTo(p.x, p.y, checkDoor); });
-  const up = () => { dragging = false; }; layer.addEventListener('pointerup', up); layer.addEventListener('pointercancel', up);
+  layer.addEventListener('pointermove', e => {
+    if (!dragging || e.pointerId !== activeId) return; const now = performance.now(); if (now - lastRe < 120) return;
+    const p = toStage(e); if (downAt && Math.hypot(p.x - downAt.x, p.y - downAt.y) < 28) return;
+    if (dragTgt && Math.hypot(p.x - dragTgt.x, p.y - dragTgt.y) < 24) return;
+    lastRe = now; dragTgt = p; walkTo(p.x, p.y, checkDoor);
+  });
+  const up = e => { if (e && activeId !== null && e.pointerId !== activeId) return; dragging = false; activeId = null; };
+  ['pointerup', 'pointercancel', 'lostpointercapture'].forEach(t => layer.addEventListener(t, up));
   function checkDoor() { const d = places[0].door; if (Math.hypot(B.x - d[0], B.y - d[1]) < 45) enterBakery(); }
-  const LINES = () => [`嗨 ${KID ? KID.nick : ''}！我是${title(S.level)}！`, '我們去甜甜餐廳幫熊大廚吧！', `我已經有 ${S.coins} 枚金幣了！`, '點地圖，我就會走過去喔！', '答對題目，就能升級喔！'];
+  const LINES = () => [`嗨 ${KID ? KID.nick : ''}！我是${title(S.level)}！`, '今天想去哪一館冒險呢？', `我已經有 ${S.coins} 枚金幣了！`, '點地圖，我就會走過去喔！', '答對題目，就能升級喔！'];
   mapUI = { bunnySay, B, reset() { const p = S.pos && walkable(Math.floor(S.pos[0] / GS), Math.floor(S.pos[1] / GS)) ? S.pos : [665, 890]; B.path = []; B.x = p[0]; B.y = p[1]; setAnimal(KID ? KID.animal : 'bunny'); render(); } };
   onShow.map = () => { setTimeout(() => bunnySay(LINES()[rnd(3)]), 500); };
 }
@@ -662,7 +711,7 @@ function buildBakery() {
   function showExplain(q, right, firstTry, coins, xp) {
     const last = R.i === R.qs.length - 1;
     const { c, m } = modal(`<div class="row"><div class="face"><img src="${right ? IMG.bearHappy : IMG.bearThink}" alt=""></div><div class="body"><h2>${right ? (firstTry ? '答對了！' : '答對囉！') : '一起來看看'}</h2>` +
-      (right ? `<div class="gainline">+${coins} 金幣　+${xp} 經驗</div>` : '') + (q.type === '配對消除' ? '' : `<div class="ans">答案：${esc(q.answer)}</div>`) +
+      (right ? `<div class="gainline">${icon('coin', 'coin')}+${coins}　${icon('gem', 'coin')}+${xp} 經驗</div>` : '') + (q.type === '配對消除' ? '' : `<div class="ans">答案：${esc(q.answer)}</div>`) +
       `<div class="explain">${esc(q.explain || '仔細看題目，一步一步算就對了！')}</div></div></div><div class="actions"><button class="pill" data-a="next">${last ? '看結果' : '下一題'}</button></div>`, { close: false, wide: true }); Music.duck(true);
     on(c, '[data-a=next]', () => { closeModal(m); Music.duck(false); R.i++; if (R.i >= R.qs.length) finishRound(); else showQ(); });
   }
@@ -700,7 +749,7 @@ function scoreQ(q, right, tries, isMatch) {
 }
 function explainModal(q, right, sc, lastQ, onNext, face) {
   const { c, m } = modal(`<div class="row"><div class="face"><img src="${face || (right ? IMG.bearHappy : IMG.bearThink)}" alt=""></div><div class="body"><h2>${right ? (sc.firstTry ? '答對了！' : '答對囉！') : '一起來看看'}</h2>` +
-    (right && sc.coins ? `<div class="gainline">+${sc.coins} 金幣　+${sc.xp} 經驗</div>` : '') + (q.type === '配對消除' ? '' : `<div class="ans">答案：${esc(q.answer.split('|').join(' → '))}</div>`) +
+    (right && sc.coins ? `<div class="gainline">${icon('coin', 'coin')}+${sc.coins}　${icon('gem', 'coin')}+${sc.xp} 經驗</div>` : '') + (q.type === '配對消除' ? '' : `<div class="ans">答案：${esc(q.answer.split('|').join(' → '))}</div>`) +
     `<div class="explain">${esc(q.explain || '仔細看題目，一步一步想就對了！')}</div></div></div><div class="actions"><button class="pill" data-a="next">${lastQ ? '看結果' : '下一題'}</button></div>`, { close: false, wide: true });
   Music.duck(true);
   on(c, '[data-a=next]', () => { closeModal(m); Music.duck(false); onNext(); });
@@ -894,7 +943,7 @@ function buildHall(key) {
   }
   function done() {
     const r = R2; R2 = null; Q.clear();
-    finishGeneric({ n: r.qs.length, first: r.first, coins: r.coins, xp: r.xp, bonus: 40, key: r.unit ? unitKey(H.subj, r.unit) : null });
+    finishGeneric({ n: r.qs.length, first: r.first, coins: r.coins, xp: r.xp, bonus: 40, key: r.unit ? unitKey(H.subj, r.unit) : null, subj: H.subj });
   }
   hallUI[key] = { menu };
   onShow['hall_' + key] = () => { if (!R2) { menu(); setTimeout(() => say(H.greet, 'hi', 3000), 400); } };
@@ -905,6 +954,7 @@ function finishGeneric(o) {
   addCoins(bonus); addXP(20 + stars * 10);
   S.stars += stars; S.rounds++; const d = D(); d.rounds++; d.stars += stars;
   if (o.key) { S.unitStars = S.unitStars || {}; S.unitStars[o.key] = Math.max(S.unitStars[o.key] || 0, stars); }
+  const sj = o.subj || (o.key ? o.key.split('|')[0] : ''); if (sj) S.prog.rounds[sj] = (S.prog.rounds[sj] || 0) + 1;
   save();
   showResult({ f, n, coins: o.coins + bonus, xp: o.xp + 20 + stars * 10, stars });
 }
@@ -979,7 +1029,7 @@ function buildBoss() {
     const win = B2.hp === 0; const r = B2; B2 = null; Q.clear();
     const bonus = win ? 150 : 30; addCoins(bonus); addXP(win ? 80 : 20);
     if (win) { S.stars += 3; S.bossWins = (S.bossWins || 0) + 1; } save(); refreshHUD();
-    const { c, m } = modal(`<div class="cert" style="background-image:url('${IMG.frameWide}')"><div class="certin"><h2>${win ? '打倒迷糊小龍！' : '差一點點！'}</h2><p>${esc(KID ? KID.nick : '')}　${win ? '成功通過魔王試煉' : `打掉了 ${6 - r.hp} 顆愛心`}</p><p class="gainline">+${r.coins + bonus} 金幣　+${r.xp + (win ? 80 : 20)} 經驗${win ? '　+3 星星' : ''}</p></div></div><div class="actions"><button class="pill" data-a="ok">${win ? '太棒了！' : '再接再厲'}</button></div>`, { close: false, wide: true });
+    const { c, m } = modal(`<div class="cert" style="background-image:url('${IMG.frameWide}')"><div class="certin"><h2>${win ? '打倒迷糊小龍！' : '差一點點！'}</h2><p>${esc(KID ? KID.nick : '')}　${win ? '成功通過魔王試煉' : `打掉了 ${6 - r.hp} 顆愛心`}</p><p class="gainline">${icon('coin', 'coin')}+${r.coins + bonus}　${icon('gem', 'coin')}+${r.xp + (win ? 80 : 20)} 經驗${win ? '　+3 星星' : ''}</p></div></div><div class="actions"><button class="pill" data-a="ok">${win ? '太棒了！' : '再接再厲'}</button></div>`, { close: false, wide: true });
     if (win) SFX.level();
     on(c, '[data-a=ok]', () => { closeModal(m); menu(); if (pendingLevels.length) showLevelUps(); });
   }
@@ -1019,7 +1069,7 @@ function buildForest() {
   }
   function end() {
     const r = F2; F2 = null; Q.clear(); card.style.display = 'none';
-    const bonus = r.saved * 5; addCoins(bonus); save(); refreshHUD();
+    const bonus = r.saved * 5; addCoins(bonus); S.prog.saved += r.saved; save(); refreshHUD();
     modal(`<h2 class="center">複習完成！</h2><p class="center">救回了 ${r.saved} / ${r.qs.length} 隻小精靈，烏龜爺爺送你 ${bonus} 枚金幣。</p>`);
   }
   onShow.forest = () => { if (!F2) setTimeout(() => say(`歡迎來到迷霧森林，有 ${wrongQs().length} 題等你複習。`, 'hi', 3000), 400); };
@@ -1054,7 +1104,7 @@ function buildMusic() {
   function ping(f, t, v = 0.12, len = 0.25, type = 'triangle') { try { const c = AC(), o = c.createOscillator(), g = c.createGain(); o.type = type; o.frequency.value = f; g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(v, t + 0.01); g.gain.exponentialRampToValueAtTime(0.0001, t + len); o.connect(g).connect(c.destination); o.start(t); o.stop(t + len + 0.05); } catch (e) {} }
   function startSong(sg) {
     if (timeUp()) return showTimeUp();
-    Music.duck(true);
+    Music.duck(true, 0);
     const c = AC(), beat = 60 / sg.bpm, t0 = c.currentTime + 0.4 + LEAD * beat;
     const notes = []; let b = 0;
     sg.lines.forEach(line => { [...line].forEach(ch => { notes.push({ t: t0 + b * beat, ch, hit: false, miss: false }); b++; }); b++; });
@@ -1098,7 +1148,7 @@ function buildMusic() {
     const ratio = (g.perfect + g.good * 0.6) / n; const stars = ratio >= 0.9 ? 3 : ratio >= 0.65 ? 2 : 1;
     const coins = g.perfect * 3 + g.good * 2, bonus = 20 * stars, xp = 10 + stars * 10;
     addCoins(coins + bonus); addXP(xp); S.stars += stars; S.rounds++; const d = D(); d.rounds++; d.stars += stars;
-    S.unitStars = S.unitStars || {}; S.unitStars['音樂|' + g.sg.id] = Math.max(S.unitStars['音樂|' + g.sg.id] || 0, stars); save();
+    S.unitStars = S.unitStars || {}; S.unitStars['音樂|' + g.sg.id] = Math.max(S.unitStars['音樂|' + g.sg.id] || 0, stars); S.prog.songs++; S.prog.rounds['音樂'] = (S.prog.rounds['音樂'] || 0) + 1; save();
     lastRetry = () => { go('music'); startSong(g.sg); }; lastBack = 'music';
     showResult({ f: hits, n, coins: coins + bonus, xp, stars });
     setTimeout(() => { resultUI.banner.textContent = `打中 ${hits} / ${n} 個音符`; resultUI.back.textContent = '回音樂亭'; }, 400);
@@ -1106,23 +1156,285 @@ function buildMusic() {
   onShow.music = () => { chip.innerHTML = `${esc(KID ? KID.nick : '')}　Lv.${S.level}　金幣 ${S.coins}`; if (!G3) setTimeout(() => say('啾啾！一起來打節拍吧！', 'happy', 2600), 400); };
 }
 
-/* ---------- 兔兔小屋 ---------- */
-function buildHome() {
-  const s = screen('home', 'home');
+/* ================= SHOP（家具店與裝備店） ================= */
+const shopURL = id => vq(`img/shop/${id}.webp`);
+const mkItems = (prefix, list) => list.map(([name, price], i) => ({ id: prefix + '_' + i, name, price }));
+const SHOP = {
+  furn: { name: '家具', items: mkItems('fa', [['星星小床', 120], ['魔法書桌', 100], ['紫絨椅子', 60], ['花藤書櫃', 110], ['星星衣櫥', 120], ['星花地毯', 50], ['星光立燈', 60], ['粉紅盆花', 40], ['花朵沙發', 130], ['下午茶桌', 80], ['玩具寶箱', 90], ['月亮掛鐘', 70], ['彩虹城堡畫', 70], ['紫絨坐墊', 40], ['水晶床頭櫃', 80], ['星星窗簾', 70]])
+      .concat(mkItems('fb', [['小小廚房', 150], ['石窯烤爐', 160], ['花朵餐桌組', 120], ['蛋糕展示架', 90], ['星星茶具組', 60], ['蝴蝶結花瓶', 50], ['星星檯燈', 60], ['兔兔音樂盒', 100], ['魔法地球儀', 80], ['小畫架', 70], ['兔兔布偶', 60], ['小魚水族箱', 120], ['搖搖木馬', 110], ['星星懶骨頭', 90], ['星星串燈', 40], ['星星信箱', 60]])) },
+  hat: { name: '魔法帽', slot: '帽子', items: mkItems('hat', [['星星兔耳帽', 120], ['草莓蛋糕帽', 140], ['彩虹雲朵帽', 140], ['櫻花蝴蝶結帽', 130], ['棒棒糖帽', 130], ['鈴蘭森林帽', 130], ['月亮夜空帽', 160], ['草莓奶油帽', 150], ['藍條紋兔兔帽', 140], ['愛心天使帽', 180]]) },
+  cape: { name: '披風', slot: '披風', items: mkItems('cape', [['星星魔法披風', 150], ['櫻花瓣披風', 150], ['草莓毛毛披風', 170], ['雲朵月亮披風', 170], ['愛心蕾絲披風', 160], ['彩虹糖果披風', 180], ['綠葉鈴蘭披風', 160], ['公主皇冠披風', 220], ['糖果條紋披風', 180], ['紫花花瓣披風', 170]]) },
+  wand: { name: '法杖', slot: '法杖', items: mkItems('wand', [['胡蘿蔔法杖', 120], ['拐杖糖法杖', 140], ['閃亮星星法杖', 180], ['紫陽花法杖', 150], ['愛心皇冠法杖', 220], ['月亮兔兔法杖', 180], ['莓果籃法杖', 160], ['星星藥水法杖', 170], ['兔兔水晶球法杖', 200], ['杯子蛋糕法杖', 160]]) }
+};
+const GEAR = ['hat', 'cape', 'wand'];
+const itemOf = (cat, id) => SHOP[cat].items.find(x => x.id === id);
+const owns = (cat, id) => (S.inv[cat] || []).includes(id);
+const coinIc = icon('coin', 'coin');
+function wear(cat, id) { S.equip[cat] = S.equip[cat] === id ? '' : id; save(); }
+function outfitRow() {
+  const cells = GEAR.map(k => { const it = S.equip && S.equip[k] ? itemOf(k, S.equip[k]) : null; return `<div class="ofit">${it ? `<img src="${shopURL(it.id)}" alt="">` : '<span>＋</span>'}<small>${it ? esc(it.name) : SHOP[k].slot}</small></div>`; }).join('');
+  return `<div class="ofrow">${cells}</div>`;
+}
+function showBag(tab) {
+  tab = tab || 'gear';
+  const cats = tab === 'gear' ? GEAR : ['furn'];
+  const owned = cats.flatMap(k => (S.inv[k] || []).map(id => ({ k, it: itemOf(k, id) })).filter(x => x.it));
+  const grid = owned.length ? `<div class="bgrid">${owned.map(({ k, it }) => { const on = S.equip[k] === it.id; return `<button class="bitem ${on ? 'worn' : ''}" data-k="${k}" data-id="${it.id}"><img src="${shopURL(it.id)}" alt=""><b>${esc(it.name)}</b>${k === 'furn' ? '' : `<small>${on ? '穿戴中' : '點一下穿上'}</small>`}</button>`; }).join('')}</div>`
+    : `<p class="center muted">${tab === 'gear' ? '還沒有裝備喔！' : '還沒有家具喔！'}到地圖右下角的「家具店與裝備店」用金幣買吧。</p>`;
+  const { c, m } = modal(`<h2 class="ichead">${icon('chest', 'hic')}我的背包</h2><div class="tabs"><button class="tab ${tab === 'gear' ? 'on' : ''}" data-t="gear">裝備</button><button class="tab ${tab === 'furn' ? 'on' : ''}" data-t="furn">家具</button></div>` +
+    (tab === 'gear' ? outfitRow() : '<p class="muted center">到兔兔小屋按「擺家具」，就能把家具擺進家裡喔！</p>') + grid, { wide: true });
+  c.querySelectorAll('[data-t]').forEach(b => b.onclick = () => { SFX.tap(); closeModal(m); showBag(b.dataset.t); });
+  c.querySelectorAll('.bitem').forEach(b => b.onclick = () => { if (b.dataset.k === 'furn') return; SFX.ok(); wear(b.dataset.k, b.dataset.id); closeModal(m); showBag('gear'); if (shopUI) shopUI.render(); });
+}
+let shopUI = null;
+function buildShop() {
+  const s = screen('shop', 'shopBg');
+  // ambience: lanterns, flowers, magic circle
+  glow(s, 80, 270, 70, 'warm'); glow(s, 722, 100, 80, 'warm'); glow(s, 230, 495, 45, 'magic'); glow(s, 722, 1000, 120, 'magic');
+  [[0, 860, 240, 226, '0% 100%'], [1230, 870, 218, 216, '100% 100%'], [880, 0, 260, 200, '50% 0%'], [80, 0, 300, 150, '50% 0%']].forEach(t => patch(s, t[0], t[1], t[2], t[3], 'a-sway', t[4]));
+  patch(s, 980, 320, 90, 260, 'a-flag', '50% 0%', 'rect'); patch(s, 400, 330, 90, 250, 'a-flag', '50% 0%', 'rect');
+  for (let i = 0; i < 8; i++) twinkle(s, rr(480, 1400), rr(140, 600));
+  petals(s, 5);
   kitHUD(s, { home: () => go('map', true) });
-  const say = hallBubble(s, 760, 520, 440);
-  [[390, 170], [1100, 200], [800, 330], [600, 700]].forEach(p => glow(s, p[0], p[1], 34, 'warm')); petals(s, 4);
-  const kid = el('div', 'actor npc', s); place(kid, 600, 560, 230, 260);
-  const spots = [
-    { name: '床', box: [253, 305, 344, 275], fn: () => { say(['好想睡個午覺喔～呼嚕嚕…', '軟綿綿的床，休息一下再出發！', '晚上要早點睡，明天才有精神答題喔！'][rnd(3)], 'happy'); floatText('Zzz…', 420, 330); } },
-    { name: '書桌', box: [688, 253, 253, 217], fn: () => { const d = D(); modal(`<h2 class="center">今天的冒險日記</h2><p class="center">${esc(KID ? KID.nick : '')}　Lv.${S.level} ${esc(title(S.level))}</p><p class="center">今天完成 ${d.rounds} 回合，答對 ${d.correct} 題，拿到 ${d.stars} 顆星星</p><p class="center muted">總共有 ${S.coins} 枚金幣、${S.stars} 顆星星</p>`); } },
-    { name: '相框', box: [977, 108, 254, 182], fn: () => say(`這是我的冒險照片！我已經收集了 ${S.stars} 顆星星，${S.bossWins ? `還打贏魔王 ${S.bossWins} 次！` : '總有一天要去挑戰魔王試煉塔！'}`, 'happy', 4200) },
-    { name: '窗戶', box: [271, 72, 236, 199], fn: () => say(['外面的天氣真好！', '從窗戶可以看到甜甜餐廳耶！', '今天要去哪裡冒險呢？'][rnd(3)], 'hi') }
-  ];
-  spots.forEach(p => btn(s, 'hot rect', ...p.box, p.fn, p.name));
-  rbtn(s, 715, 690, 120, () => { kid.classList.remove('cheer'); void kid.offsetWidth; kid.classList.add('cheer'); SFX.star(); say(['歡迎回家！', '小屋最舒服了～', '要不要去餐廳幫熊大廚？'][rnd(3)], 'happy'); }, '我的角色');
-  lbl(s, 1040, 1000, 360, '點點看床、書桌、相框和窗戶');
-  onShow.home = () => { kid.innerHTML = `<div class="body"><img src="${frURL(POSE(KID && KID.animal).idle)}" alt=""></div>`; setTimeout(() => say(`歡迎回到兔兔小屋，${KID ? KID.nick : ''}！`, 'happy', 2800), 400); };
+  backPill(s, '回地圖', () => go('map', true));
+  // 浣熊木匠 阿木
+  const npc = el('div', 'actor npc', s); place(npc, 30, 455, 380, 480);
+  npc.innerHTML = `<div class="body"><img src="${npcURL('raccoon_full')}" alt="浣熊木匠阿木"></div>`;
+  const tag = el('div', 'plate shoptag', s, '浣熊木匠・阿木'); place(tag, 220, 945);
+  const bub = el('div', 'bubble2 hide', s); place(bub, 30, 268, 430); let bT = null;
+  function say(text, face = 'happy', ms = 3800) { bub.innerHTML = `<img src="${npcURL('raccoon_' + face)}" alt=""><span>${esc(text)}</span>`; bub.classList.remove('hide', 'pop'); void bub.offsetWidth; bub.classList.add('pop'); clearTimeout(bT); if (ms) bT = setTimeout(() => bub.classList.add('hide'), ms); }
+  const act = cls => { npc.classList.remove('cheer', 'no'); void npc.offsetWidth; npc.classList.add(cls); setTimeout(() => npc.classList.remove(cls), 900); };
+  btn(s, 'hot rect', 60, 470, 320, 460, () => { act('cheer'); say(['每一件家具都是我親手做的喔！', '金幣不夠的話，去各館答題就能賺金幣！', '買了的東西都會放進背包裡。', '棉花的裁縫攤還在準備中，帽子、披風和法杖今天先由我幫忙賣！'][rnd(4)], 'happy'); }, '阿木');
+  // 商品櫃
+  const panel = el('div', 'shoppanel', s); place(panel, 470, 128, 958, 940);
+  const PER = 8; let cat = 'furn', page = 0;
+  function render() {
+    const items = SHOP[cat].items, pages = Math.ceil(items.length / PER); page = Math.min(page, pages - 1);
+    const tabs = Object.keys(SHOP).map(k => `<button class="stab ${k === cat ? 'on' : ''}" data-cat="${k}">${SHOP[k].name}</button>`).join('');
+    const cards = items.slice(page * PER, page * PER + PER).map(it => {
+      const own = owns(cat, it.id), on = cat !== 'furn' && S.equip[cat] === it.id;
+      return `<button class="sitem ${own ? 'owned' : ''} ${on ? 'worn' : ''}" data-id="${it.id}"><img src="${shopURL(it.id)}" alt="" loading="lazy"><b>${esc(it.name)}</b>` +
+        (own ? `<span class="tagown">${cat === 'furn' ? '已擁有' : on ? '穿戴中' : '點一下穿上'}</span>` : `<span class="price">${coinIc}${it.price}</span>`) + '</button>';
+    }).join('');
+    const foot = cat === 'furn' ? `<span class="shint">家具會放進背包，回兔兔小屋就能擺進家裡！</span>` : `<span class="shint">穿戴中</span>${outfitRow()}`;
+    panel.innerHTML = `<div class="stabs">${tabs}</div><div class="sgrid">${cards}</div><div class="sfoot"><button class="spg" data-pg="-1" ${page ? '' : 'disabled'} aria-label="上一頁">◀</button><div class="smid">${foot}</div><span class="spn">${page + 1} / ${pages}</span><button class="spg" data-pg="1" ${page < pages - 1 ? '' : 'disabled'} aria-label="下一頁">▶</button></div>`;
+    panel.querySelectorAll('[data-cat]').forEach(b => b.onclick = () => { SFX.tap(); cat = b.dataset.cat; page = 0; render();
+      if (cat === 'furn') say('這些都是我做的家具，慢慢挑喔！', 'happy'); else say('棉花的裁縫攤還在準備中，今天由我幫她顧店！', 'wow'); });
+    panel.querySelectorAll('[data-pg]').forEach(b => b.onclick = () => { SFX.tap(); page += +b.dataset.pg; render(); });
+    panel.querySelectorAll('.sitem').forEach(b => b.onclick = () => { SFX.tap(); pick(itemOf(cat, b.dataset.id)); });
+  }
+  function pick(it) {
+    if (owns(cat, it.id)) {
+      if (cat === 'furn') return say('這個已經是你的囉！回兔兔小屋就能擺進家裡。', 'happy');
+      wear(cat, it.id); SFX.ok(); render(); act('cheer'); return say(S.equip[cat] === it.id ? `穿上「${it.name}」了，好可愛！` : `先把「${it.name}」收起來囉。`, 'happy');
+    }
+    const lack = it.price - S.coins;
+    const { c, m } = modal(`<div class="center"><img class="buyimg" src="${shopURL(it.id)}" alt=""><h2>${esc(it.name)}</h2><p>要用 ${coinIc}<b>${it.price}</b> 枚金幣買下嗎？</p><p class="muted">你現在有 ${S.coins} 枚金幣</p>` +
+      (lack > 0 ? `<p class="err">還差 ${lack} 枚金幣喔！</p>` : '') +
+      `<div class="actions"><button class="pill cream" data-a="no">再想想</button><button class="pill" data-a="buy" ${lack > 0 ? 'disabled' : ''}>買下來！</button></div></div>`);
+    on(c, '[data-a=no]', () => closeModal(m));
+    if (lack > 0) say(`還差 ${lack} 枚金幣，去各館答題就能賺到喔！`, 'think');
+    on(c, '[data-a=buy]', () => {
+      if (S.coins < it.price || owns(cat, it.id)) return closeModal(m);
+      S.coins -= it.price; S.inv[cat] = (S.inv[cat] || []).concat(it.id);
+      if (cat !== 'furn') S.equip[cat] = it.id;
+      save(); flushSave(); refreshHUD(); closeModal(m);
+      SFX.coin(); setTimeout(SFX.level, 200); act('cheer'); floatText(`-${it.price} 金幣`, 950, 120);
+      say(cat === 'furn' ? `謝謝惠顧！「${it.name}」已經放進你的背包囉！` : `謝謝惠顧！已經幫你穿上「${it.name}」囉！`, 'happy', 4200);
+      render();
+    });
+  }
+  shopUI = { render };
+  onShow.shop = () => { render(); setTimeout(() => say(`歡迎光臨！我是木匠阿木。${KID ? KID.nick + '，' : ''}今天想買什麼呢？`, 'happy', 3600), 400); };
+}
+
+/* ================= 任務徽章 ================= */
+const SAFE_SCR = ['map', 'result', 'shop', 'home', 'badges', 'status'];
+const subjRounds = sj => (S.prog && S.prog.rounds[sj]) || 0;
+const BADGES = [
+  { id: 'book', name: '國語小魔法師', desc: '在星語魔法館完成 3 回合', goal: 3, v: () => subjRounds('國語') },
+  { id: 'leaf', name: '自然小藥師', desc: '在月光藥草館完成 3 回合', goal: 3, v: () => subjRounds('自然') },
+  { id: 'cake', name: '數學小廚師', desc: '在甜甜餐廳完成 3 回合', goal: 3, v: () => subjRounds('數學') },
+  { id: 'bunny', name: '兔兔的家', desc: '在兔兔小屋擺好 3 件家具', goal: 3, v: () => S.home.items.length },
+  { id: 'star', name: '星星收集家', desc: '收集 30 顆星星', goal: 30, v: () => S.stars },
+  { id: 'music', name: '節拍小歌手', desc: '在小鳥音樂亭唱完 3 首歌', goal: 3, v: () => S.prog.songs },
+  { id: 'butterfly', name: '森林救援隊', desc: '在迷霧森林救回 10 隻小精靈', goal: 10, v: () => S.prog.saved },
+  { id: 'hat', name: '魔法造型師', desc: '帽子、披風、法杖都穿上', goal: 3, v: () => GEAR.filter(k => S.equip[k]).length },
+  { id: 'potion', name: '任務小達人', desc: '領取 10 次今日任務獎勵', goal: 10, v: () => S.prog.quests },
+  { id: 'crystal', name: '閃亮魔法師', desc: '升到 Lv.5', goal: 5, v: () => S.level },
+  { id: 'crown', name: '小龍的好朋友', desc: '在魔王試煉塔打敗迷糊小龍', goal: 1, v: () => S.bossWins || 0, reward: 100 },
+  { id: 'bow', name: '市集小幫手', desc: '在星光市集完成 3 回合', goal: 3, v: () => subjRounds('素養') }
+];
+const badgeURL = (b, on) => vq(`img/badge/${b.id}${on ? '' : '_off'}.webp`);
+let badgeQueue = [];
+function checkBadges() {
+  if (!KID) return; let got = false;
+  BADGES.forEach(b => { if (S.badges[b.id]) return; let v = 0; try { v = b.v(); } catch (e) {} if (v >= b.goal) { S.badges[b.id] = Date.now(); addCoins(b.reward || 50); badgeQueue.push(b); got = true; } });
+  if (got) { save(); refreshHUD(); if (badgeUI) badgeUI.render(); }
+}
+function showBadgeQueue() {
+  if (!badgeQueue.length || !SAFE_SCR.includes(curName)) return;
+  if (modalOpen()) return setTimeout(showBadgeQueue, 1500);
+  const list = badgeQueue.splice(0); SFX.level();
+  const { c, m } = modal(`<div class="center"><h2 class="ichead">${icon('crown', 'hic')}得到新徽章！</h2><div class="newbadges">${list.map(b => `<div><img src="${badgeURL(b, true)}" alt=""><b>${esc(b.name)}</b><small>${coinIc}+${b.reward || 50} 金幣</small></div>`).join('')}</div>` +
+    `<div class="actions"><button class="pill cream" data-a="ok">好棒！</button><button class="pill" data-a="see">看徽章冊</button></div></div>`);
+  on(c, '[data-a=ok]', () => closeModal(m)); on(c, '[data-a=see]', () => { closeModal(m); openBadges(); });
+}
+let backFrom = 'map';
+function openBadges() { if (!KID) return; if (!SAFE_SCR.includes(curName)) return showQuests(); if (!['badges', 'status'].includes(curName)) backFrom = curName; go('badges', true); }
+function openStatus() { if (!['badges', 'status'].includes(curName)) backFrom = curName; go('status', true); }
+let badgeUI = null;
+function buildBadges() {
+  const s = screen('badges', 'badgeBg');
+  for (let i = 0; i < 8; i++) twinkle(s, rr(260, 1200), rr(250, 900));
+  petals(s, 5);
+  const back = el('button', 'backpill', s, ICON.back + '<span>返回</span>'); place(back, 24, 26); back.addEventListener('click', () => { SFX.tap(); go(backFrom || 'map', true); });
+  const chip = el('div', 'hallchip bchip', s); place(chip, 524, 30, 400, 76);
+  const qb = el('button', 'pill small', s, '今日任務'); place(qb, 1160, 28, 250, 80); qb.addEventListener('click', () => { SFX.tap(); showQuests(); });
+  const kid = el('div', 'actor bunbox', s); place(kid, -10, 790, 230, 300); const kb = el('div', 'body', kid); let ksp = null, KA = null;
+  btn(s, 'hot rect', 0, 800, 210, 280, () => { if (ksp) { const P = POSE(KA); ksp.play(P.cheer, P.cheerMs === 140 ? 150 : 1000, 300, P.idle); SFX.ok(); } }, '我的角色');
+  const grid = el('div', 'bgrid2', s); place(grid, 300, 262, 880, 650);
+  function render() {
+    const n = BADGES.filter(b => S.badges[b.id]).length;
+    chip.innerHTML = `魔法徽章冊　<b>${n}</b> / ${BADGES.length}`;
+    grid.innerHTML = BADGES.map(b => { const on = !!S.badges[b.id]; return `<button class="bdg ${on ? 'on' : ''}" data-b="${b.id}"><img src="${badgeURL(b, on)}" alt=""><b>${on ? esc(b.name) : '？？？'}</b></button>`; }).join('');
+    grid.querySelectorAll('[data-b]').forEach(e => e.onclick = () => { SFX.tap(); detail(BADGES.find(b => b.id === e.dataset.b)); });
+    if (KA !== (KID && KID.animal)) { KA = KID && KID.animal; kb.innerHTML = ''; ksp = makeSprite(kb, poseFrames(POSE(KA))); ksp.show(POSE(KA).idle); }
+  }
+  function detail(b) {
+    const on = !!S.badges[b.id]; let v = 0; try { v = Math.min(b.v(), b.goal); } catch (e) {}
+    modal(`<div class="center"><img class="buyimg" src="${badgeURL(b, on)}" alt=""><h2>${esc(b.name)}</h2><p>${esc(b.desc)}</p>` +
+      (on ? `<p class="muted">${new Date(S.badges[b.id]).toLocaleDateString('zh-TW')} 得到的，好厲害！</p>` :
+        `<div class="pbar"><i style="width:${v / b.goal * 100}%"></i></div><p class="muted">目前 ${v} / ${b.goal}　得到徽章可以拿 ${coinIc}${b.reward || 50} 枚金幣</p>`) + '</div>');
+  }
+  badgeUI = { render };
+  onShow.badges = () => { checkBadges(); render(); };
+}
+
+/* ================= 小朋友的狀態 ================= */
+const STATUS_ROWS = [
+  { subj: '國語', y: 380, go: 'hall_chinese' }, { subj: '自然', y: 490, go: 'hall_science' }, { subj: '素養', y: 600, go: 'hall_literacy' },
+  { subj: '數學', y: 710, go: 'bakery' }, { subj: '音樂', y: 820, go: 'music' }
+];
+const CHEERS = ['今天也一起加油吧！', '每答對一題，魔法就變強一點！', '錯了也沒關係，迷霧森林可以複習喔。', '收集徽章，變成傳說魔法師！', '慢慢想，你一定可以的！'];
+function buildStatus() {
+  const s = screen('status', 'statusBg');
+  const face = el('div', 'avface stface', s); circ(face, 102, 80, 56);
+  const xp = el('div', 'xp stxp', s, '<i></i><b></b>'); place(xp, 186, 54, 268, 40);
+  rbtn(s, 1142, 70, 50, () => go(backFrom || 'map', true), '返回'); rbtn(s, 1258, 70, 50, () => showBag(), '背包'); rbtn(s, 1373, 70, 50, showSettings, '設定');
+  const rows = STATUS_ROWS.map(r => { const d = el('button', 'strow', s); place(d, 335, r.y - 40, 320, 80); d.addEventListener('click', () => { SFX.tap(); go(r.go, true); }); return d; });
+  const name = el('div', 'stname', s); place(name, 905, 292, 200, 56);
+  const sprBox = el('div', 'actor bunbox stspr', s); place(sprBox, 905, 372, 210, 250); const sb = el('div', 'body', sprBox); let sp = null, SA = null;
+  btn(s, 'hot rect', 905, 372, 210, 250, () => { if (sp) { const P = POSE(SA); sp.play([P.giggle[rnd(P.giggle.length)]], 1200, 0, P.idle); SFX.ok(); say(); } }, '我的角色');
+  const gear = el('div', 'stgear', s); place(gear, 808, 380, 80, 240);
+  const info = el('div', 'stinfo', s); place(info, 810, 618, 400, 92);
+  const cheer = el('div', 'stcheer', s); place(cheer, 300, 868, 380, 44);
+  const sw = el('div', 'stsw', s, '換別的小朋友'); place(sw, 852, 884, 312, 36);
+  btn(s, 'hot rect', 852, 762, 312, 118, () => { flushSave(); switchKid(); }, '換別的小朋友');
+  [['徽章', 1325, 357, openBadges], ['背包', 1325, 450, () => showBag()], ['小屋', 1330, 612, () => go('home', true)], ['任務', 1325, 675, showQuests]].forEach(([t, x, y, fn]) => {
+    const l = el('div', 'sttab', s, t); place(l, x - 32, y - 18, 64, 36); rbtn(s, x, t === '小屋' ? 565 : y, t === '小屋' ? 55 : 38, fn, t); });
+  function say() { cheer.textContent = CHEERS[rnd(CHEERS.length)]; }
+  function render() {
+    const A = KID ? KID.animal : 'bunny';
+    face.style.backgroundImage = `url("${frURL(POSE(A).idle)}")`;
+    const pct = Math.min(100, S.xp / need(S.level) * 100);
+    xp.querySelector('i').style.width = Math.max(6, pct) + '%'; xp.querySelector('b').textContent = `Lv.${S.level}　${S.xp} / ${need(S.level)}`;
+    rows.forEach((d, i) => {
+      const sj = STATUS_ROWS[i].subj, rounds = subjRounds(sj);
+      const keys = Object.keys(S.unitStars || {}).filter(k => k.startsWith(sj + '|'));
+      const total = Math.max(sj === '音樂' ? SONGS2.length : unitsOf(sj).length, keys.length, 1);
+      const stars = keys.reduce((a, k) => a + (S.unitStars[k] || 0), 0);
+      d.innerHTML = `<b>${sj}</b><div class="sti"><span>完成 ${rounds} 回合　★ ${stars}</span><div class="strbar"><div class="pbar sm"><i style="width:${keys.length / total * 100}%"></i></div><small>單元 ${keys.length}/${total}</small></div></div>`;
+    });
+    name.textContent = KID ? KID.nick : '';
+    if (SA !== A) { SA = A; sb.innerHTML = ''; sp = makeSprite(sb, poseFrames(POSE(A))); sp.show(POSE(A).idle); }
+    gear.innerHTML = GEAR.map(k => { const it = S.equip[k] ? itemOf(k, S.equip[k]) : null; return `<div class="sgi">${it ? `<img src="${shopURL(it.id)}" alt="">` : `<span>${SHOP[k].slot}</span>`}</div>`; }).join('');
+    const nb = BADGES.filter(b => S.badges[b.id]).length;
+    info.innerHTML = `<b>${esc(title(S.level))}</b><span>${coinIc}${S.coins}　★ ${S.stars}　徽章 ${nb} / ${BADGES.length}</span>`;
+    say();
+  }
+  onShow.status = render;
+}
+
+/* ================= 兔兔小屋 ================= */
+const FURN_W = { fa_0: 250, fa_1: 210, fa_2: 120, fa_3: 200, fa_4: 210, fa_5: 260, fa_6: 120, fa_7: 120, fa_8: 240, fa_9: 170, fa_10: 170, fa_11: 110, fa_12: 150, fa_13: 120, fa_14: 140, fa_15: 190,
+  fb_0: 250, fb_1: 230, fb_2: 230, fb_3: 140, fb_4: 120, fb_5: 100, fb_6: 120, fb_7: 110, fb_8: 110, fb_9: 140, fb_10: 110, fb_11: 200, fb_12: 170, fb_13: 170, fb_14: 200, fb_15: 120 };
+const HOME_BOX = { x0: 70, x1: 1380, y0: 150, y1: 1060 };
+function buildHome() {
+  const s = screen('home', 'homeBg');
+  glow(s, 712, 120, 70, 'warm'); glow(s, 840, 270, 50, 'warm');
+  [[0, 0, 260, 330, '0% 0%'], [520, 0, 360, 200, '50% 0%'], [0, 690, 170, 396, '0% 100%'], [1230, 720, 218, 366, '100% 100%']].forEach(t => patch(s, t[0], t[1], t[2], t[3], 'a-sway', t[4]));
+  for (let i = 0; i < 6; i++) twinkle(s, rr(280, 540), rr(110, 300));
+  const room = el('div', 'roomlayer', s);
+  kitHUD(s, { home: () => { if (edit) setEdit(false); go('map', true); } });
+  const kid = el('div', 'roomkid', room); const kb = el('div', 'wbody', el('div', 'flip', kid)); let ksp = null, KA = null, K = { x: 720, y: 820 }, walkT = null;
+  const bub = el('div', 'say follow', s); bub.style.display = 'none'; let bT = null;
+  function say(t) { bub.textContent = t; bub.style.display = 'block'; bub.classList.remove('pop'); void bub.offsetWidth; bub.classList.add('pop'); placeBub(); clearTimeout(bT); bT = setTimeout(() => bub.style.display = 'none', 3000); }
+  function placeBub() { bub.style.left = pctX(K.x); bub.style.top = pctY(K.y - 245); }
+  function putKid() { kid.style.left = pctX(K.x); kid.style.top = pctY(K.y); kid.style.zIndex = Math.round(K.y); placeBub(); }
+  function moveKid(x, y) {
+    const P = POSE(KA); const dx = x - K.x; if (Math.abs(dx) > 4) kid.classList.toggle('left', P.sideLeft ? dx > 0 : dx < 0);
+    const dist = Math.hypot(x - K.x, y - K.y), ms = Math.max(250, dist / 0.42);
+    kid.style.transition = `left ${ms}ms linear, top ${ms}ms linear`; K.x = x; K.y = y; putKid();
+    clearInterval(walkT); let f = 0; kid.classList.add('walking'); walkT = setInterval(() => { f = (f + 1) % P.walk.length; ksp.show(P.walk[f]); }, 110);
+    setTimeout(() => { clearInterval(walkT); kid.classList.remove('walking'); ksp.show(P.idle); S.home.kid = [Math.round(K.x), Math.round(K.y)]; save(); }, ms + 20);
+  }
+  // furniture
+  const els = new Map(); let edit = false, sel = null;
+  function itemEl(it) {
+    let e = els.get(it);
+    if (!e) { e = el('div', 'furn', room); e.innerHTML = `<img src="${shopURL(it.id)}" alt="" draggable="false">`; els.set(it, e); bindDrag(e, it); }
+    e.style.left = pctX(it.x); e.style.top = pctY(it.y); e.style.width = pctX(FURN_W[it.id] || 160); e.style.zIndex = Math.round(it.y);
+    e.classList.toggle('flip', !!it.f); e.classList.toggle('sel', sel === it); return e;
+  }
+  function drawAll() { els.forEach((e, it) => { if (!S.home.items.includes(it)) { e.remove(); els.delete(it); } }); S.home.items.forEach(itemEl); }
+  function bindDrag(e, it) {
+    let st = null;
+    e.addEventListener('pointerdown', ev => { if (!edit) return; ev.stopPropagation(); ev.preventDefault(); const p = toStage(ev); st = { id: ev.pointerId, dx: it.x - p.x, dy: it.y - p.y, p0: p, moved: false }; try { e.setPointerCapture(ev.pointerId); } catch (er) {} select(it); });
+    e.addEventListener('pointermove', ev => { if (!st || ev.pointerId !== st.id) return; const p = toStage(ev); if (!st.moved && Math.hypot(p.x - st.p0.x, p.y - st.p0.y) < 8) return; st.moved = true;
+      it.x = Math.round(Math.min(HOME_BOX.x1, Math.max(HOME_BOX.x0, p.x + st.dx))); it.y = Math.round(Math.min(HOME_BOX.y1, Math.max(HOME_BOX.y0, p.y + st.dy))); itemEl(it); tools(); });
+    const end = ev => { if (!st || ev.pointerId !== st.id) return; const mv = st.moved; st = null; if (mv) { save(); SFX.step(); } };
+    e.addEventListener('pointerup', end); e.addEventListener('pointercancel', end);
+  }
+  const tb = el('div', 'furntools', s); tb.style.display = 'none';
+  tb.innerHTML = `<button data-t="flip">翻轉</button><button data-t="back">往後</button><button data-t="put">收起來</button>`;
+  tb.addEventListener('pointerdown', e => e.stopPropagation());
+  tb.querySelectorAll('button').forEach(b => b.addEventListener('click', e => { e.stopPropagation(); SFX.tap(); if (!sel) return; const t = b.dataset.t;
+    if (t === 'flip') { sel.f = !sel.f; itemEl(sel); }
+    if (t === 'back') { sel.y = Math.max(HOME_BOX.y0, sel.y - 30); itemEl(sel); tools(); }
+    if (t === 'put') { S.home.items = S.home.items.filter(x => x !== sel); sel = null; drawAll(); tray(); tools(); }
+    save(); }));
+  function select(it) { sel = it; els.forEach((e, x) => e.classList.toggle('sel', x === it)); tools(); }
+  function tools() { if (!edit || !sel) { tb.style.display = 'none'; return; } tb.style.display = 'flex'; const r = els.get(sel).getBoundingClientRect(), a = toStage({ clientX: r.left + r.width / 2, clientY: r.top }), b = toStage({ clientX: r.left, clientY: r.bottom });
+    tb.style.left = pctX(Math.min(1250, Math.max(200, a.x))); tb.style.top = pctY(a.y - 80 > 120 ? a.y - 80 : Math.min(860, b.y + 10)); }
+  // edit tray
+  const editBtn = el('button', 'pill homebtn', s, '擺家具'); place(editBtn, 1130, 966, 290, 96);
+  editBtn.addEventListener('click', () => { SFX.tap(); setEdit(!edit); });
+  const trayEl = el('div', 'hometray', s); place(trayEl, 30, 940, 1080, 140); trayEl.style.display = 'none';
+  trayEl.addEventListener('pointerdown', e => e.stopPropagation());
+  let tp = 0; const TPP = 6;
+  function freeItems() { const used = {}; S.home.items.forEach(x => { used[x.id] = (used[x.id] || 0) + 1; }); return (S.inv.furn || []).filter(id => { if (used[id]) { used[id]--; return false; } return true; }); }
+  function tray() {
+    if (!edit) return; const free = freeItems(); const pages = Math.max(1, Math.ceil(free.length / TPP)); tp = Math.min(tp, pages - 1);
+    trayEl.innerHTML = free.length ? `<button class="spg" data-p="-1" ${tp ? '' : 'disabled'}>◀</button><div class="trayitems">${free.slice(tp * TPP, tp * TPP + TPP).map(id => `<button class="titem" data-id="${id}"><img src="${shopURL(id)}" alt=""><small>${esc(itemOf('furn', id).name)}</small></button>`).join('')}</div><button class="spg" data-p="1" ${tp < pages - 1 ? '' : 'disabled'}>▶</button>`
+      : `<p class="traynote">${(S.inv.furn || []).length ? '家具都擺好了！按家具可以移動、翻轉或收起來。' : '還沒有家具喔！到地圖右下角的家具店買吧。'}</p>`;
+    trayEl.querySelectorAll('[data-p]').forEach(b => b.onclick = () => { SFX.tap(); tp += +b.dataset.p; tray(); });
+    trayEl.querySelectorAll('.titem').forEach(b => b.onclick = () => { SFX.ok(); const it = { id: b.dataset.id, x: 724 + rr(-80, 80) | 0, y: 700 + rr(-40, 40) | 0, f: false }; S.home.items.push(it); drawAll(); select(it); tray(); save(); checkBadges(); setTimeout(showBadgeQueue, 600); });
+  }
+  function setEdit(on) { edit = on; s.classList.toggle('editing', on); editBtn.textContent = on ? '完成' : '擺家具'; trayEl.style.display = on ? 'flex' : 'none'; if (!on) { sel = null; drawAll(); } tools(); tray(); if (on) say('拖拉家具，擺到喜歡的地方吧！'); else { save(); flushSave(); } }
+  // tap the floor: walk there / deselect
+  room.addEventListener('pointerdown', e => {
+    const p = toStage(e); if (p.y < 130) return;
+    if (edit) { sel = null; els.forEach(x => x.classList.remove('sel')); tools(); return; }
+    if (Math.hypot(p.x - K.x, p.y - (K.y - 100)) < 90) { const P = POSE(KA); ksp.play(P.cheer, P.cheerMs === 140 ? 150 : 1000, 300, P.idle); SFX.ok(); return say(['這是我的家！', '我好喜歡這裡！', `我有 ${S.home.items.length} 件家具了！`][rnd(3)]); }
+    moveKid(Math.min(1330, Math.max(110, p.x)), Math.min(1040, Math.max(470, p.y)));
+  });
+  onShow.home = () => {
+    if (KA !== (KID && KID.animal)) { KA = KID && KID.animal; kb.innerHTML = ''; ksp = makeSprite(kb, poseFrames(POSE(KA))); ksp.show(POSE(KA).idle); }
+    if (S.home.kid) { K.x = S.home.kid[0]; K.y = S.home.kid[1]; } kid.style.transition = 'none'; putKid();
+    els.forEach(e => e.remove()); els.clear(); drawAll(); if (edit) setEdit(false);
+    setTimeout(() => say((S.inv.furn || []).length > S.home.items.length ? '按右下角「擺家具」，把新家具放進來吧！' : '回到家了！'), 500);
+  };
 }
 
 /* ================= RESULT ================= */
@@ -1144,13 +1456,13 @@ function buildResult() {
 function finishRound() {
   const st0 = R.st; const r = R; R = null;
   if (st0.key) { /* unit-map round */ }
-  finishGeneric({ n: r.qs.length, first: r.first, coins: r.coins, xp: r.xp, bonus: st0.bonus, key: st0.key || null });
+  finishGeneric({ n: r.qs.length, first: r.first, coins: r.coins, xp: r.xp, bonus: st0.bonus, key: st0.key || null, subj: '數學' });
 }
 function showResult(res) {
   go('result', true);
   setTimeout(() => {
     resultUI.banner.textContent = `一次答對 ${res.f} / ${res.n} 題`;
-    resultUI.gain.innerHTML = `<span>+${res.coins} 金幣</span><span>+${res.xp} 經驗</span>`;
+    resultUI.gain.innerHTML = `<span>${icon('coin', 'coin')}+${res.coins} 金幣</span><span>${icon('gem', 'coin')}+${res.xp} 經驗</span>`;
     resultUI.back.textContent = lastBack === 'bakery' ? '回餐廳' : lastBack === 'mathmap' ? '回單元地圖' : '回到館內';
     resultUI.stars.forEach(st => st.classList.remove('on'));
     for (let i = 0; i < res.stars; i++) setTimeout(() => { resultUI.stars[i].classList.add('on'); SFX.star(); }, 500 + i * 450);
@@ -1165,18 +1477,19 @@ function showLevelUps() {
 
 /* ================= quests / profile / settings ================= */
 const QUESTS = [
-  { id: 'r1', text: '完成 1 回合餐廳挑戰', goal: 1, key: 'rounds', reward: 30 },
-  { id: 'c15', text: '今天答對 15 題', goal: 15, key: 'correct', reward: 50 },
-  { id: 's5', text: '今天收集 5 顆星星', goal: 5, key: 'stars', reward: 50 }
+  { id: 'r1', text: '完成 1 回合挑戰', goal: 1, key: 'rounds', reward: 30, ic: 'book' },
+  { id: 'c15', text: '今天答對 15 題', goal: 15, key: 'correct', reward: 50, ic: 'gem' },
+  { id: 's5', text: '今天收集 5 顆星星', goal: 5, key: 'stars', reward: 50, ic: 'wand' }
 ];
 function showQuests() {
   const d = D();
   const rows = QUESTS.map(q => { const v = Math.min(d[q.key], q.goal), done = v >= q.goal, cl = d.claimed.includes(q.id);
-    return `<div class="quest"><div class="qt">${q.text}<div class="bar"><i style="width:${v / q.goal * 100}%"></i></div><small>${v} / ${q.goal}　獎勵 ${q.reward} 金幣</small></div><button class="pill small" data-q="${q.id}" ${!done || cl ? 'disabled' : ''}>${cl ? '已領取' : done ? '領取' : '進行中'}</button></div>`; }).join('');
-  const { c } = modal(`<h2>今日任務</h2>${rows}<p class="muted" style="margin-top:calc(var(--u)*16)">每天都會有新的任務喔！</p>`);
-  c.querySelectorAll('[data-q]').forEach(b => b.addEventListener('click', () => { const q = QUESTS.find(x => x.id === b.dataset.q); if (d.claimed.includes(q.id)) return; d.claimed.push(q.id); addCoins(q.reward); SFX.coin(); refreshHUD(); b.textContent = '已領取'; b.disabled = true; toast(`拿到 ${q.reward} 枚金幣！`); }));
+    return `<div class="quest">${icon(q.ic, 'qic')}<div class="qt">${q.text}<div class="bar"><i style="width:${v / q.goal * 100}%"></i></div><small>${v} / ${q.goal}　獎勵 ${coinIc}${q.reward} 金幣</small></div><button class="pill small" data-q="${q.id}" ${!done || cl ? 'disabled' : ''}>${cl ? '已領取' : done ? '領取' : '進行中'}</button></div>`; }).join('');
+  const { c } = modal(`<h2 class="ichead">${icon('scroll', 'hic')}今日任務</h2>${rows}<p class="muted" style="margin-top:calc(var(--u)*16)">每天都會有新的任務喔！</p>`);
+  c.querySelectorAll('[data-q]').forEach(b => b.addEventListener('click', () => { const q = QUESTS.find(x => x.id === b.dataset.q); if (d.claimed.includes(q.id)) return; d.claimed.push(q.id); S.prog.quests++; addCoins(q.reward); SFX.coin(); refreshHUD(); b.textContent = '已領取'; b.disabled = true; floatText(`+${q.reward} 金幣`, 724, 420); toast(`拿到 ${q.reward} 枚金幣！`); }));
 }
-function showProfile() { const { c, m } = modal(`<img class="avatar" src="${animalImg(KID && KID.animal)}" alt=""><h2 class="center">${esc(KID ? KID.nick : '')}　Lv.${S.level} ${esc(title(S.level))}</h2><p class="center">金幣 ${S.coins} 枚　星星 ${S.stars} 顆　完成 ${S.rounds} 回合</p><p class="center muted">再拿 ${need(S.level) - S.xp} 點經驗就能升級！</p><div class="actions"><button class="pill cream" data-a="sw">換別的小朋友</button></div>`); on(c, '[data-a=sw]', () => { closeModal(m); switchKid(); }); }
+function showProfile() { if (KID && SAFE_SCR.includes(curName)) return openStatus(); showProfileModal(); }
+function showProfileModal() { const { c, m } = modal(`<img class="avatar" src="${animalImg(KID && KID.animal)}" alt=""><h2 class="center">${esc(KID ? KID.nick : '')}　Lv.${S.level} ${esc(title(S.level))}</h2><p class="center">${coinIc}${S.coins}　★ ${S.stars}　完成 ${S.rounds} 回合</p><p class="center muted">再拿 ${need(S.level) - S.xp} 點經驗就能升級！</p>${outfitRow()}<div class="actions"><button class="pill cream" data-a="bag">我的背包</button><button class="pill cream" data-a="sw">換別的小朋友</button></div>`); on(c, '[data-a=sw]', () => { closeModal(m); switchKid(); }); on(c, '[data-a=bag]', () => { closeModal(m); showBag(); }); }
 function showSettings() {
   const { c, m } = modal(`<h2>設定</h2><div class="setrow"><span>音效</span><div class="seg"><button data-s="1" class="${S.settings.sound ? 'on' : ''}">開</button><button data-s="0" class="${S.settings.sound ? '' : 'on'}">關</button></div></div><div class="setrow"><span>背景音樂</span><div class="seg"><button data-m="1" class="${S.settings.music ? 'on' : ''}">開</button><button data-m="0" class="${S.settings.music ? '' : 'on'}">關</button></div></div><div class="actions"><button class="pill purple" data-a="parent">家長專區</button></div>`);
   c.querySelectorAll('[data-m]').forEach(b => b.addEventListener('click', () => { S.settings.music = b.dataset.m === '1'; save(); c.querySelectorAll('[data-m]').forEach(x => x.classList.toggle('on', x === b)); SFX.tap(); Music.refresh(); }));
@@ -1201,7 +1514,8 @@ const FB = (() => {
     register: (e, p, name) => auth.createUserWithEmailAndPassword(e, p).then(() => fam().set({ email: e, name, createdAt: Date.now() }, { merge: true })),
     login: (e, p) => auth.signInWithEmailAndPassword(e, p),
     reset: e => auth.sendPasswordResetEmail(e),
-    logout: () => auth.signOut(),
+    logout: () => { parentOkUntil = 0; return auth.signOut(); },
+    reauth: p => { const u = auth.currentUser; return u.reauthenticateWithCredential(firebase.auth.EmailAuthProvider.credential(u.email, p)); },
     family: () => fam().get().then(d => d.exists ? d.data() : {}),
     setFamily: f => fam().set(f, { merge: true }),
     listKids: () => kids().get().then(q => q.docs.map(d => Object.assign({ id: d.id }, d.data()))),
@@ -1237,7 +1551,7 @@ const LOCALBE = (() => {
   const ok = v => Promise.resolve(v);
   return {
     kind: 'local', onAuth: cb => setTimeout(() => cb({ uid: 'local', email: '這台裝置' }), 0),
-    register: () => ok(), login: () => ok(), reset: () => ok(), logout: () => ok(),
+    register: () => ok(), login: () => ok(), reset: () => ok(), logout: () => ok(), reauth: () => ok(),
     family: () => ok(db.family), setFamily: f => { Object.assign(db.family, f); sv(); return ok(); },
     listKids: () => ok(Object.entries(db.kids).map(([id, k]) => Object.assign({ id }, k))),
     addKid: k => { const id = code(10); db.kids[id] = Object.assign({ createdAt: Date.now() }, k); sv(); return ok(id); },
@@ -1369,11 +1683,46 @@ function pinPad(k, title2, onOk) {
     }
   });
 }
+// 家長密碼：第一次使用時設定（雲端版要先輸入登入密碼確認是家長），之後用密碼進入
+let parentOkUntil = 0;
 function adultGate(fn, note) {
-  const a = 12 + rnd(18), b = 13 + rnd(17);
-  const { c, m } = modal(`<h2>家長確認</h2>${note ? `<p class="muted">${esc(note)}</p>` : ''}<p>請家長回答：${a} × ${b} ＝ ？</p><div class="actions"><input class="gatein" inputmode="numeric" pattern="[0-9]*" aria-label="答案"><button class="pill" data-a="go">確認</button></div>`);
-  const inp = c.querySelector('input'); setTimeout(() => inp.focus(), 100);
-  on(c, '[data-a=go]', () => { if (parseInt(inp.value, 10) === a * b) { closeModal(m); fn(); } else { inp.value = ''; toast('答案不正確'); } });
+  if (Date.now() < parentOkUntil) return fn();
+  const pp = FAMILY && FAMILY.parentPin;
+  if (!pp || !pp.hash) return setParentPin(fn, note);
+  const { c, m } = modal(`<h2>家長密碼</h2>${note ? `<p class="muted">${esc(note)}</p>` : ''}<p>請輸入家長密碼</p>` +
+    `<div class="actions"><input class="gatein pw" type="password" inputmode="numeric" pattern="[0-9]*" maxlength="8" autocomplete="off" aria-label="家長密碼"><button class="pill" data-a="go">確認</button></div>` +
+    `<p class="err center"></p><p class="center"><button class="linkbtn" data-a="forgot">忘記家長密碼？</button></p>`);
+  const inp = c.querySelector('input'), er = c.querySelector('.err'); setTimeout(() => inp.focus(), 100);
+  const go2 = async () => {
+    const v = inp.value.trim(); if (!v) return;
+    if (adultGate.lockUntil && Date.now() < adultGate.lockUntil) { er.textContent = '嘗試太多次，請等 30 秒再試'; return; }
+    if (await hashPin(pp.salt, v) === pp.hash) { adultGate.fails = 0; parentOkUntil = Date.now() + 5 * 60000; closeModal(m); fn(); return; }
+    inp.value = ''; SFX.bad(); adultGate.fails = (adultGate.fails || 0) + 1;
+    if (adultGate.fails >= 5) { adultGate.fails = 0; adultGate.lockUntil = Date.now() + 30000; er.textContent = '嘗試太多次，請等 30 秒再試'; } else er.textContent = '密碼不正確';
+  };
+  on(c, '[data-a=go]', go2); inp.addEventListener('keydown', e => { if (e.key === 'Enter') go2(); });
+  on(c, '[data-a=forgot]', () => { closeModal(m); setParentPin(fn, '輸入家長帳號的登入密碼，就能重新設定家長密碼。', true); });
+}
+function setParentPin(fn, note, reset) {
+  const needAcct = BE.kind === 'cloud';
+  const { c, m } = modal(`<h2>${reset ? '重新設定家長密碼' : '設定家長密碼'}</h2><p class="muted">${esc(note || '第一次使用家長功能，請設定一組家長密碼（4～8 位數字）。之後進入家長後台、新增小朋友、登出都要輸入這組密碼。')}</p>` +
+    (needAcct ? `<label class="frm">家長帳號的登入密碼（${esc(USER && USER.email || '')}）<input id="pp-acct" type="password" autocomplete="current-password"></label>` : '') +
+    `<label class="frm">新的家長密碼<input id="pp-1" type="password" inputmode="numeric" pattern="[0-9]*" maxlength="8" autocomplete="new-password"></label>` +
+    `<label class="frm">再輸入一次<input id="pp-2" type="password" inputmode="numeric" pattern="[0-9]*" maxlength="8" autocomplete="new-password"></label>` +
+    `<p class="err"></p><div class="actions"><button class="pill" data-a="ok">儲存並進入</button></div>`);
+  const er = c.querySelector('.err');
+  on(c, '[data-a=ok]', async ev => {
+    const p1 = c.querySelector('#pp-1').value.trim(), p2 = c.querySelector('#pp-2').value.trim();
+    if (!/^\d{4,8}$/.test(p1)) return er.textContent = '家長密碼要是 4～8 個數字';
+    if (p1 !== p2) return er.textContent = '兩次輸入的密碼不一樣';
+    busy(ev.target, true);
+    try {
+      if (needAcct) await BE.reauth(c.querySelector('#pp-acct').value);
+      const salt = code(10), parentPin = { salt, hash: await hashPin(salt, p1), at: Date.now() };
+      await BE.setFamily({ parentPin }); FAMILY.parentPin = parentPin;
+      parentOkUntil = Date.now() + 5 * 60000; closeModal(m); toast('家長密碼已設定'); fn();
+    } catch (e) { busy(ev.target, false); er.textContent = errMsg(e); }
+  });
 }
 function kidForm(first) {
   let animal = 'bunny';
@@ -1415,9 +1764,9 @@ function kidForm(first) {
   });
 }
 async function enterKid(k) {
-  loadBg('map'); setTimeout(warmUp, 1500);
+  loadBg('map'); warmUp();
   showGate('<p>正在準備冒險…</p>');
-  let doc = null; try { doc = await BE.loadKid(k.id); } catch (e) {}
+  let doc = k && k.state ? k : null; if (!doc) { try { doc = await BE.loadKid(k.id); } catch (e) {} }
   let cloudSt = doc && doc.state, localSt = null;
   try { localSt = JSON.parse(localStorage.getItem('bw-kid-' + k.id) || 'null'); } catch (e) {}
   let st = cloudSt;
@@ -1563,7 +1912,9 @@ async function adminPanel(tab, kidId) {
     ab.innerHTML = `<div class="setrow"><span>帳號</span><span>${esc(USER ? USER.email : '')}</span></div>` +
       `<div class="setrow"><span>題庫來源</span><span>${esc(BANK_SRC)}，數學 ${BANK.length} 題</span></div>` +
       `<div class="setrow"><span>雲端存檔</span><span>${BE.kind === 'cloud' ? '已開啟，每次答題自動同步，每天另存一份備份' : '試玩版只存在這台裝置'}</span></div>` +
-      `<div class="actions">${BE.kind === 'cloud' ? '<button class="pill cream" data-a="rst">寄送重設密碼信</button>' : ''}${KID ? '<button class="pill cream" data-a="exp">匯出目前小朋友的備份</button>' : ''}${BE.kind === 'cloud' ? '<button class="pill purple" data-a="out">登出家長帳號</button>' : ''}</div>`;
+      `<div class="setrow"><span>家長密碼</span><span>${FAMILY.parentPin ? '已設定' : '尚未設定'}</span></div>` +
+      `<div class="actions"><button class="pill cream" data-a="pp">變更家長密碼</button>${BE.kind === 'cloud' ? '<button class="pill cream" data-a="rst">寄送重設密碼信</button>' : ''}${KID ? '<button class="pill cream" data-a="exp">匯出目前小朋友的備份</button>' : ''}${BE.kind === 'cloud' ? '<button class="pill purple" data-a="out">登出家長帳號</button>' : ''}</div>`;
+    on(ab, '[data-a=pp]', () => { closeModal(m); setParentPin(() => adminPanel('set'), '輸入家長帳號的登入密碼，再設定新的家長密碼。', true); });
     on(ab, '[data-a=rst]', async () => { try { await BE.reset(USER.email); toast('已寄出重設密碼信到 ' + USER.email); } catch (e) { toast(errMsg(e)); } });
     on(ab, '[data-a=exp]', () => { const blob = new Blob([JSON.stringify({ kid: KID, state: S }, null, 1)], { type: 'application/json' }); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `ambermagic-${KID.nick}-${today()}.json`; a.click(); });
     on(ab, '[data-a=out]', async () => { flushSave(); closeModal(m); KID = null; await BE.logout(); });
@@ -1572,12 +1923,16 @@ async function adminPanel(tab, kidId) {
 
 function intro() {
   if (S.introDone) return;
-  const { c, m } = modal(`<div class="row"><div class="face"><img src="${IMG.bearWow}" alt=""></div><div class="body"><h2>歡迎 ${esc(KID ? KID.nick : '')} 來到兔兔魔法世界！</h2><p>用手指點地圖，或按住拖曳，兔兔就會走過去。</p><p>熊大廚的甜甜餐廳需要幫忙！走到閃閃發光的餐廳，答對數學題目就能拿到金幣、一直升級喔。</p></div></div><div class="actions"><button class="pill" data-a="go">出發！</button></div>`, { close: false, wide: true });
-  on(c, '[data-a=go]', () => { S.introDone = true; save(); closeModal(m); mapUI.bunnySay('跟我一起去餐廳吧！'); });
+  const { c, m } = modal(`<div class="row"><div class="face"><img src="${IMG.bearWow}" alt=""></div><div class="body"><h2>歡迎 ${esc(KID ? KID.nick : '')} 來到兔兔魔法世界！</h2><p>用手指點地圖，或按住拖曳，兔兔就會走過去。</p><p>魔法世界裡每一館都有不同的題目，答對就能拿到金幣、一直升級喔。金幣可以到「家具店與裝備店」買東西！</p></div></div><div class="actions"><button class="pill" data-a="go">出發！</button></div>`, { close: false, wide: true });
+  on(c, '[data-a=go]', () => { S.introDone = true; save(); closeModal(m); mapUI.bunnySay('一起去冒險吧！'); });
 }
 
 /* ---------- boot ---------- */
-buildMap(); buildBakery(); buildResult(); buildHall('chinese'); buildHall('science'); buildHall('literacy'); buildMathMap(); buildBoss(); buildForest(); buildMusic(); buildHome(); fit();
+Object.assign(BUILDERS, { bakery: buildBakery, hall_chinese: () => buildHall('chinese'), hall_science: () => buildHall('science'), hall_literacy: () => buildHall('literacy'),
+  mathmap: buildMathMap, boss: buildBoss, forest: buildForest, music: buildMusic, shop: buildShop, home: buildHome, badges: buildBadges, status: buildStatus });
+buildMap(); buildResult(); fit();
+document.addEventListener('gesturestart', e => e.preventDefault()); document.addEventListener('gesturechange', e => e.preventDefault());
+document.addEventListener('dblclick', e => e.preventDefault(), { passive: false });
 loadBank();
 if (!FB && !USE_LOCAL) {
   showGate('<h2>需要網路連線</h2><p>第一次使用需要連上網路才能登入。請確認網路後重新整理。</p><button class="pill" onclick="location.reload()">重新整理</button>');
@@ -1593,5 +1948,6 @@ if (!FB && !USE_LOCAL) {
     showKids();
   });
 }
+{ const bootEl = document.getElementById('boot'); if (bootEl) { bootEl.classList.add('hide'); setTimeout(() => bootEl.remove(), 500); } }
 if ('serviceWorker' in navigator && location.protocol === 'https:' && !window.INLINE_QUESTIONS) navigator.serviceWorker.register('sw.js').catch(() => {});
 })();
