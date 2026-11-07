@@ -7,7 +7,7 @@ const IMG = Object.assign({
   starA: 'img/star_a.webp', starB: 'img/star_b.webp', bearHappy: 'img/bear_happy.webp', bearWow: 'img/bear_wow.webp',
   bearThink: 'img/bear_think.webp', avatar: 'img/avatar.webp', bearBody: 'img/bear_body.webp', gate: 'img/gate.webp', frameWide: 'img/frame_wide.webp', frameCard: 'img/frame_card.webp', hallChinese: 'img/hall_chinese.webp', hallScience: 'img/hall_science.webp', hallMarket: 'img/hall_market.webp', boss: 'img/boss.webp', forest: 'img/forest.webp', mathMap: 'img/mathmap.webp', music: 'img/music.webp', shopBg: 'img/shop_bg.webp', homeBg: 'img/home_bg.webp', badgeBg: 'img/badge_bg.webp', statusBg: 'img/status_bg.webp'
 }, window.INLINE_IMG || {});
-const AV = '11071100'; const vq = u => (u && !String(u).startsWith('data:')) ? u + '?v=' + AV : u;
+const AV = '11071200'; const vq = u => (u && !String(u).startsWith('data:')) ? u + '?v=' + AV : u;
 Object.keys(IMG).forEach(k => { IMG[k] = vq(IMG[k]); });
 // 道具小圖示（img/icon/）
 const icon = (n, cls = 'ic') => `<img class="${cls}" src="${vq('img/icon/' + n + '.webp')}" alt="">`;
@@ -369,33 +369,29 @@ const poseFrames = P => Array.from(new Set([P.idle, ...P.walk, P.back, ...P.look
 const isAnimFrame = n => /^(shiba|panda|penguin|fawn)_\d$/.test(n);
 const frURL = n => isAnimFrame(n) ? ((window.INLINE_IMG && window.INLINE_IMG['an_' + n]) || vq(`img/animals/${n.split('_')[0]}/${n.split('_')[1]}.webp`)) : bunURL(n);
 const animalImg = a => frURL(POSE(a).idle);
-/* ---------- 穿戴：把買來的帽子、披風、法杖畫在角色身上 ---------- */
-// 每種姿勢的位置：[中心 x%, 上緣 y%, 寬度%]（以角色那一格圖片的寬高為準）
-const GEAR_FIT = {
-  front: { cape: [50, 40, 104], hat: [50, -18, 80], wand: [86, 40, 26] },
-  side:  { cape: [48, 40, 100], hat: [46, -18, 80], wand: null },
-  back:  { cape: [50, 42, 86], hat: [50, -16, 82], wand: null },
-  happy: { cape: [50, 36, 104], hat: [50, -14, 80], wand: [92, 26, 26] },
-  sideA: { cape: [44, 40, 100], hat: [38, -18, 80], wand: null }
-};
-function gearKind(n) {
-  if (/^walk_/.test(n)) return 'side';
-  if (/^(shiba|panda|penguin|fawn)_1$/.test(n)) return 'sideA';
-  if (n === 'turn_2' || /^(shiba|panda|penguin|fawn)_2$/.test(n)) return 'back';
-  if (/^happy_/.test(n) || /^(shiba|panda|penguin|fawn)_4$/.test(n)) return 'happy';
-  return 'front';
+/* ---------- 換裝娃娃：用「動物穿上每件裝備」的原畫組合出角色 ---------- */
+// img/doll/{動物}/hat_N.webp、cape_N.webp、base.webp 都放在同一張 420×520 畫布、腳底對齊。
+// 戴帽子＝頭部用帽子那張，穿披風＝身體用披風那張，兩張在脖子處接起來；法杖用商店的法杖圖拿在手上。
+const DOLL = { bunny: { neck: 60.5, bodyTop: 6.8 }, shiba: { neck: 61.7, bodyTop: 16.9 }, panda: { neck: 62.2, bodyTop: 23.4 }, penguin: { neck: 66.4, bodyTop: 23.6 }, fawn: { neck: 63.8, bodyTop: 22.4 } };
+const DOLL_HAS = { bunny: ['hat', 'cape'], shiba: ['hat', 'cape'], panda: ['hat', 'cape'], penguin: ['hat', 'cape'], fawn: ['hat'] };
+const dollURL = (an, f) => vq(`img/doll/${an}/${f}.webp`);
+const spriteAnimal = names => names.includes('turn_0') ? 'bunny' : String(names[0]).split('_')[0];
+const curEquip = () => (typeof S !== 'undefined' && S && S.equip) || {};
+const wearing = eq => !!(eq.hat || eq.cape || eq.wand);
+// 商店縮圖：有原畫的就顯示「自己的動物穿上它」
+function itemThumb(cat, id) { const an = (KID && KID.animal) || 'bunny'; return (DOLL_HAS[an] || []).includes(cat) ? dollURL(an, id) : shopURL(id); }
+function dollHTML(an, eq) {
+  const D = DOLL[an] || DOLL.bunny, has = DOLL_HAS[an] || [];
+  const hat = eq.hat && has.includes('hat') ? eq.hat : '', cape = eq.cape && has.includes('cape') ? eq.cape : '';
+  const head = hat || cape || 'base', body = cape || hat || 'base';
+  let h = '';
+  if (head === body) h += `<img class="dl" src="${dollURL(an, head)}" alt="">`;
+  else h += `<img class="dl" src="${dollURL(an, body)}" alt="" style="clip-path:inset(${D.neck}% 0 0 0)"><img class="dl" src="${dollURL(an, head)}" alt="" style="clip-path:inset(0 0 ${(100 - D.neck).toFixed(1)}% 0)">`;
+  if (eq.cape && !cape) h += `<img class="dl-cape" src="${shopURL(eq.cape)}" alt="" style="top:${D.neck - 2}%">`; // 沒有原畫的動物：披風疊在身上
+  if (eq.wand) h += `<img class="dl-wand" src="${shopURL(eq.wand)}" alt="">`;
+  return h;
 }
 const SPRITES = new Set();
-function dressFrame(d, n) {
-  const eq = (typeof S !== 'undefined' && S && S.equip) || {}; const fit = GEAR_FIT[gearKind(n)];
-  const parts = ['cape', 'hat', 'wand'].filter(k => eq[k] && fit[k]);
-  const sig = parts.map(k => eq[k]).join(','); if (d.dataset.gear === sig) return; d.dataset.gear = sig;
-  let g = d.querySelector('.gear'); if (g) g.remove(); if (!parts.length) return;
-  g = el('div', 'gear', d); const back = gearKind(n) !== 'back'; // 披風放在身體後面（背面姿勢則蓋在背上）
-  if (back && parts.includes('cape')) { const im0 = d.querySelector(':scope > img'); if (im0) im0.style.position = 'relative'; im0 && (im0.style.zIndex = 1); }
-  parts.forEach(k => { const [cx, top, w] = fit[k]; const im = el('img', 'g-' + k, g); if (k === 'cape' && back) im.style.zIndex = 0; else im.style.zIndex = 2; im.src = shopURL(eq[k]); im.alt = ''; im.draggable = false;
-    im.style.left = (cx - w / 2) + '%'; im.style.top = top + '%'; im.style.width = w + '%'; });
-}
 function dressAll() { SPRITES.forEach(sp => { if (!sp.root.isConnected) { SPRITES.delete(sp); return; } sp.dress(); }); }
 function makeSprite(parent, names, eyeColor) {
   const root = el('div', 'sprite', parent); const fr = {};
@@ -405,7 +401,15 @@ function makeSprite(parent, names, eyeColor) {
   function show(n) { if (curN === n) return; if (curN) fr[curN].style.display = 'none'; fr[n].style.display = 'block'; curN = n; }
   function clear() { timers.forEach(clearTimeout); timers = []; }
   function play(seq, ms, hold, then) { clear(); seq.forEach((n, i) => timers.push(setTimeout(() => show(n), i * ms))); timers.push(setTimeout(() => { if (then) show(then); }, seq.length * ms + (hold || 0))); }
-  function dress() { names.forEach(n => dressFrame(fr[n], n)); }
+  // 有穿裝備：改用換裝娃娃（原畫組合）；沒穿：用原本會動的角色
+  const an = spriteAnimal(names); let dollEl = null, sig0 = null;
+  function dress() {
+    const eq = curEquip(), on = wearing(eq), sig = on ? [an, eq.hat, eq.cape, eq.wand].join('|') : '';
+    if (sig === sig0) return; sig0 = sig; root.classList.toggle('doll', on);
+    if (!on) { if (dollEl) dollEl.style.display = 'none'; return; }
+    if (!dollEl) { dollEl = el('div', 'dollbox', root); const D = DOLL[an] || DOLL.bunny, k = 82 / (97.7 - D.bodyTop); dollEl.style.height = (k * 100).toFixed(1) + '%'; dollEl.style.bottom = (-2.3 * k).toFixed(1) + '%'; }
+    dollEl.style.display = ''; dollEl.innerHTML = dollHTML(an, eq);
+  }
   dress();
   const api = { root, show, play, clear, dress, get cur() { return curN; } }; SPRITES.add(api);
   return api;
@@ -1211,7 +1215,7 @@ function showBag(tab) {
   tab = tab || 'gear';
   const cats = tab === 'gear' ? GEAR : ['furn'];
   const owned = cats.flatMap(k => (S.inv[k] || []).map(id => ({ k, it: itemOf(k, id) })).filter(x => x.it));
-  const grid = owned.length ? `<div class="bgrid">${owned.map(({ k, it }) => { const on = S.equip[k] === it.id; return `<button class="bitem ${on ? 'worn' : ''}" data-k="${k}" data-id="${it.id}"><img src="${shopURL(it.id)}" alt=""><b>${esc(it.name)}</b>${k === 'furn' ? '' : `<small>${on ? '穿戴中' : '點一下穿上'}</small>`}</button>`; }).join('')}</div>`
+  const grid = owned.length ? `<div class="bgrid">${owned.map(({ k, it }) => { const on = S.equip[k] === it.id; return `<button class="bitem ${on ? 'worn' : ''}" data-k="${k}" data-id="${it.id}"><img src="${k === 'furn' ? shopURL(it.id) : itemThumb(k, it.id)}" alt=""><b>${esc(it.name)}</b>${k === 'furn' ? '' : `<small>${on ? '穿戴中' : '點一下穿上'}</small>`}</button>`; }).join('')}</div>`
     : `<p class="center muted">${tab === 'gear' ? '還沒有裝備喔！' : '還沒有家具喔！'}到地圖右下角的「家具店與裝備店」用金幣買吧。</p>`;
   const { c, m } = modal(`<h2 class="ichead">${icon('chest', 'hic')}我的背包</h2><div class="tabs"><button class="tab ${tab === 'gear' ? 'on' : ''}" data-t="gear">裝備</button><button class="tab ${tab === 'furn' ? 'on' : ''}" data-t="furn">家具</button></div>` +
     (tab === 'gear' ? outfitRow() : '<p class="muted center">到兔兔小屋按「擺家具」，就能把家具擺進家裡喔！</p>') + grid, { wide: true });
@@ -1245,7 +1249,7 @@ function buildShop() {
     const tabs = Object.keys(SHOP).map(k => `<button class="stab ${k === cat ? 'on' : ''}" data-cat="${k}">${SHOP[k].name}</button>`).join('');
     const cards = items.slice(page * PER, page * PER + PER).map(it => {
       const own = owns(cat, it.id), on = cat !== 'furn' && S.equip[cat] === it.id;
-      return `<button class="sitem ${own ? 'owned' : ''} ${on ? 'worn' : ''}" data-id="${it.id}"><img src="${shopURL(it.id)}" alt="" loading="lazy"><b>${esc(it.name)}</b>` +
+      return `<button class="sitem ${own ? 'owned' : ''} ${on ? 'worn' : ''}" data-id="${it.id}"><img src="${cat === 'furn' ? shopURL(it.id) : itemThumb(cat, it.id)}" alt="" loading="lazy"><b>${esc(it.name)}</b>` +
         (own ? `<span class="tagown">${cat === 'furn' ? '已擁有' : on ? '穿戴中' : '點一下穿上'}</span>` : `<span class="price">${coinIc}${it.price}</span>`) + '</button>';
     }).join('');
     const foot = cat === 'furn' ? `<span class="shint">家具會放進背包，回兔兔小屋就能擺進家裡！</span>` : `<span class="shint">穿戴中</span>${outfitRow()}`;
@@ -1261,7 +1265,7 @@ function buildShop() {
       wear(cat, it.id); SFX.ok(); render(); act('cheer'); return say(S.equip[cat] === it.id ? `穿上「${it.name}」了，好可愛！` : `先把「${it.name}」收起來囉。`, 'happy');
     }
     const lack = it.price - S.coins;
-    const { c, m } = modal(`<div class="center"><img class="buyimg" src="${shopURL(it.id)}" alt=""><h2>${esc(it.name)}</h2><p>要用 ${coinIc}<b>${it.price}</b> 枚金幣買下嗎？</p><p class="muted">你現在有 ${S.coins} 枚金幣</p>` +
+    const { c, m } = modal(`<div class="center"><img class="buyimg" src="${cat === 'furn' ? shopURL(it.id) : itemThumb(cat, it.id)}" alt=""><h2>${esc(it.name)}</h2><p>要用 ${coinIc}<b>${it.price}</b> 枚金幣買下嗎？</p><p class="muted">你現在有 ${S.coins} 枚金幣</p>` +
       (lack > 0 ? `<p class="err">還差 ${lack} 枚金幣喔！</p>` : '') +
       `<div class="actions"><button class="pill cream" data-a="no">再想想</button><button class="pill" data-a="buy" ${lack > 0 ? 'disabled' : ''}>買下來！</button></div></div>`);
     on(c, '[data-a=no]', () => closeModal(m));

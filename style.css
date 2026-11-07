@@ -677,11 +677,12 @@ img.coin{display:inline-block;width:1.15em;height:1.15em;vertical-align:-0.22em;
 .quest{align-items:center}
 .qic{width:calc(var(--u)*72);height:calc(var(--u)*72);object-fit:contain;flex:none;margin-right:calc(var(--u)*12)}
 .float img.coin{width:1.1em;height:1.1em}
-/* 穿戴裝備疊在角色身上 */
-.sprite .fr{overflow:visible}
-.sprite .gear{position:absolute;inset:0;pointer-events:none;z-index:auto}
-.sprite .gear img{position:absolute;height:auto!important;max-width:none;display:block}
-.sprite .gear .g-wand{transform:rotate(14deg);transform-origin:50% 90%}
+/* 換裝娃娃：有穿裝備時，用原畫組合的角色取代會動的分格圖 */
+.sprite.doll .fr{visibility:hidden}
+.sprite .dollbox{position:absolute;left:50%;transform:translateX(-50%);aspect-ratio:420/520;pointer-events:none}
+.sprite .dollbox img{position:absolute;left:0;top:0;width:100%;height:100%;max-width:none;display:block}
+.sprite .dollbox img.dl-wand{left:9%;top:38%;width:24%;height:auto;transform:rotate(-12deg);transform-origin:50% 90%}
+.sprite .dollbox img.dl-cape{left:23%;width:54%;height:27%}
 /* iPad Safari：全頁關閉選取時，輸入框也會無法打字；輸入框要另外打開 */
 input,textarea,select{-webkit-user-select:text;user-select:text;-webkit-touch-callout:default}
 /* 結算畫面「一次答對 X / Y 題」：放在獎勵上方的小膠囊 */
