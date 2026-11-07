@@ -7,7 +7,7 @@ const IMG = Object.assign({
   starA: 'img/star_a.webp', starB: 'img/star_b.webp', bearHappy: 'img/bear_happy.webp', bearWow: 'img/bear_wow.webp',
   bearThink: 'img/bear_think.webp', avatar: 'img/avatar.webp', bearBody: 'img/bear_body.webp', gate: 'img/gate.webp', frameWide: 'img/frame_wide.webp', frameCard: 'img/frame_card.webp', hallChinese: 'img/hall_chinese.webp', hallScience: 'img/hall_science.webp', hallMarket: 'img/hall_market.webp', boss: 'img/boss.webp', forest: 'img/forest.webp', mathMap: 'img/mathmap.webp', music: 'img/music.webp', shopBg: 'img/shop_bg.webp', homeBg: 'img/home_bg.webp', badgeBg: 'img/badge_bg.webp', statusBg: 'img/status_bg.webp'
 }, window.INLINE_IMG || {});
-const AV = '11070900'; const vq = u => (u && !String(u).startsWith('data:')) ? u + '?v=' + AV : u;
+const AV = '11071000'; const vq = u => (u && !String(u).startsWith('data:')) ? u + '?v=' + AV : u;
 Object.keys(IMG).forEach(k => { IMG[k] = vq(IMG[k]); });
 // 道具小圖示（img/icon/）
 const icon = (n, cls = 'ic') => `<img class="${cls}" src="${vq('img/icon/' + n + '.webp')}" alt="">`;
@@ -301,6 +301,7 @@ function makeHUD(s, cfg) {
   huds.push(h); return h;
 }
 function refreshHUD() {
+  dressAll();
   const pct = Math.min(100, S.xp / need(S.level) * 100);
   huds.forEach(h => {
     if (h.lv) h.lv.textContent = S.level;
@@ -368,6 +369,34 @@ const poseFrames = P => Array.from(new Set([P.idle, ...P.walk, P.back, ...P.look
 const isAnimFrame = n => /^(shiba|panda|penguin|fawn)_\d$/.test(n);
 const frURL = n => isAnimFrame(n) ? ((window.INLINE_IMG && window.INLINE_IMG['an_' + n]) || vq(`img/animals/${n.split('_')[0]}/${n.split('_')[1]}.webp`)) : bunURL(n);
 const animalImg = a => frURL(POSE(a).idle);
+/* ---------- 穿戴：把買來的帽子、披風、法杖畫在角色身上 ---------- */
+// 每種姿勢的位置：[中心 x%, 上緣 y%, 寬度%]（以角色那一格圖片的寬高為準）
+const GEAR_FIT = {
+  front: { cape: [50, 40, 104], hat: [50, -18, 80], wand: [86, 40, 26] },
+  side:  { cape: [48, 40, 100], hat: [46, -18, 80], wand: null },
+  back:  { cape: [50, 42, 86], hat: [50, -16, 82], wand: null },
+  happy: { cape: [50, 36, 104], hat: [50, -14, 80], wand: [92, 26, 26] },
+  sideA: { cape: [44, 40, 100], hat: [38, -18, 80], wand: null }
+};
+function gearKind(n) {
+  if (/^walk_/.test(n)) return 'side';
+  if (/^(shiba|panda|penguin|fawn)_1$/.test(n)) return 'sideA';
+  if (n === 'turn_2' || /^(shiba|panda|penguin|fawn)_2$/.test(n)) return 'back';
+  if (/^happy_/.test(n) || /^(shiba|panda|penguin|fawn)_4$/.test(n)) return 'happy';
+  return 'front';
+}
+const SPRITES = new Set();
+function dressFrame(d, n) {
+  const eq = (typeof S !== 'undefined' && S && S.equip) || {}; const fit = GEAR_FIT[gearKind(n)];
+  const parts = ['cape', 'hat', 'wand'].filter(k => eq[k] && fit[k]);
+  const sig = parts.map(k => eq[k]).join(','); if (d.dataset.gear === sig) return; d.dataset.gear = sig;
+  let g = d.querySelector('.gear'); if (g) g.remove(); if (!parts.length) return;
+  g = el('div', 'gear', d); const back = gearKind(n) !== 'back'; // 披風放在身體後面（背面姿勢則蓋在背上）
+  if (back && parts.includes('cape')) { const im0 = d.querySelector(':scope > img'); if (im0) im0.style.position = 'relative'; im0 && (im0.style.zIndex = 1); }
+  parts.forEach(k => { const [cx, top, w] = fit[k]; const im = el('img', 'g-' + k, g); if (k === 'cape' && back) im.style.zIndex = 0; else im.style.zIndex = 2; im.src = shopURL(eq[k]); im.alt = ''; im.draggable = false;
+    im.style.left = (cx - w / 2) + '%'; im.style.top = top + '%'; im.style.width = w + '%'; });
+}
+function dressAll() { SPRITES.forEach(sp => { if (!sp.root.isConnected) { SPRITES.delete(sp); return; } sp.dress(); }); }
 function makeSprite(parent, names, eyeColor) {
   const root = el('div', 'sprite', parent); const fr = {};
   names.forEach(n => { const d = el('div', 'fr', root); d.style.height = frH(n) + '%'; const im = el('img', '', d); im.src = frURL(n); im.alt = ''; im.draggable = false; fr[n] = d;
@@ -376,7 +405,10 @@ function makeSprite(parent, names, eyeColor) {
   function show(n) { if (curN === n) return; if (curN) fr[curN].style.display = 'none'; fr[n].style.display = 'block'; curN = n; }
   function clear() { timers.forEach(clearTimeout); timers = []; }
   function play(seq, ms, hold, then) { clear(); seq.forEach((n, i) => timers.push(setTimeout(() => show(n), i * ms))); timers.push(setTimeout(() => { if (then) show(then); }, seq.length * ms + (hold || 0))); }
-  return { root, show, play, clear, get cur() { return curN; } };
+  function dress() { names.forEach(n => dressFrame(fr[n], n)); }
+  dress();
+  const api = { root, show, play, clear, dress, get cur() { return curN; } }; SPRITES.add(api);
+  return api;
 }
 
 /* ================= MAP ================= */
@@ -1170,7 +1202,7 @@ const GEAR = ['hat', 'cape', 'wand'];
 const itemOf = (cat, id) => SHOP[cat].items.find(x => x.id === id);
 const owns = (cat, id) => (S.inv[cat] || []).includes(id);
 const coinIc = icon('coin', 'coin');
-function wear(cat, id) { S.equip[cat] = S.equip[cat] === id ? '' : id; save(); }
+function wear(cat, id) { S.equip[cat] = S.equip[cat] === id ? '' : id; save(); dressAll(); }
 function outfitRow() {
   const cells = GEAR.map(k => { const it = S.equip && S.equip[k] ? itemOf(k, S.equip[k]) : null; return `<div class="ofit">${it ? `<img src="${shopURL(it.id)}" alt="">` : '<span>＋</span>'}<small>${it ? esc(it.name) : SHOP[k].slot}</small></div>`; }).join('');
   return `<div class="ofrow">${cells}</div>`;
@@ -1237,7 +1269,7 @@ function buildShop() {
     on(c, '[data-a=buy]', () => {
       if (S.coins < it.price || owns(cat, it.id)) return closeModal(m);
       S.coins -= it.price; S.inv[cat] = (S.inv[cat] || []).concat(it.id);
-      if (cat !== 'furn') S.equip[cat] = it.id;
+      if (cat !== 'furn') { S.equip[cat] = it.id; dressAll(); }
       save(); flushSave(); refreshHUD(); closeModal(m);
       SFX.coin(); setTimeout(SFX.level, 200); act('cheer'); floatText(`-${it.price} 金幣`, 950, 120);
       say(cat === 'furn' ? `謝謝惠顧！「${it.name}」已經放進你的背包囉！` : `謝謝惠顧！已經幫你穿上「${it.name}」囉！`, 'happy', 4200);

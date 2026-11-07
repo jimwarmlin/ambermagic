@@ -677,3 +677,8 @@ img.coin{display:inline-block;width:1.15em;height:1.15em;vertical-align:-0.22em;
 .quest{align-items:center}
 .qic{width:calc(var(--u)*72);height:calc(var(--u)*72);object-fit:contain;flex:none;margin-right:calc(var(--u)*12)}
 .float img.coin{width:1.1em;height:1.1em}
+/* 穿戴裝備疊在角色身上 */
+.sprite .fr{overflow:visible}
+.sprite .gear{position:absolute;inset:0;pointer-events:none;z-index:auto}
+.sprite .gear img{position:absolute;height:auto!important;max-width:none;display:block}
+.sprite .gear .g-wand{transform:rotate(14deg);transform-origin:50% 90%}
