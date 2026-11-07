@@ -682,3 +682,19 @@ img.coin{display:inline-block;width:1.15em;height:1.15em;vertical-align:-0.22em;
 .sprite .gear{position:absolute;inset:0;pointer-events:none;z-index:auto}
 .sprite .gear img{position:absolute;height:auto!important;max-width:none;display:block}
 .sprite .gear .g-wand{transform:rotate(14deg);transform-origin:50% 90%}
+/* iPad Safari：全頁關閉選取時，輸入框也會無法打字；輸入框要另外打開 */
+input,textarea,select{-webkit-user-select:text;user-select:text;-webkit-touch-callout:default}
+/* 結算畫面「一次答對 X / Y 題」：放在獎勵上方的小膠囊 */
+.banner.rbanner{transform:translateX(-50%);white-space:nowrap;padding:calc(var(--u)*6) calc(var(--u)*24);border-radius:999px;background:rgba(255,250,240,.95);border:calc(var(--u)*4) solid var(--gold);font-size:calc(var(--u)*28)}
+.banner.rbanner:empty{display:none}
+/* 甜點地圖城堡：未開放時文字也要看得清楚 */
+.mnode.castle.locked{opacity:1;filter:none;background:rgba(255,250,240,.95)}
+.mnode.castle.locked small{color:#8b5a2b}
+/* 音樂亭分數：淺色地板上也看得清楚 */
+.rscore:not(:empty){display:flex;align-items:center;justify-content:center;border-radius:999px;background:rgba(90,50,110,.55);color:#fff}
+/* 證書式彈窗（魔王塔結果）：不要再多一層奶油色外框 */
+.card.certcard{background:transparent;border:none;box-shadow:none;overflow:visible}
+.card.certcard .actions{margin-top:calc(var(--u)*-10)}
+/* 狀態頁：名字和側邊分頁字加深，淺色底上也看得清楚 */
+.stname{text-shadow:0 0 calc(var(--u)*3) #b03a6e,0 calc(var(--u)*2) calc(var(--u)*3) rgba(140,30,80,.9);font-weight:700}
+.sttab{font-weight:700;text-shadow:0 0 calc(var(--u)*3) rgba(80,30,20,.95),0 1px 2px rgba(80,30,20,.9)}

@@ -7,7 +7,7 @@ const IMG = Object.assign({
   starA: 'img/star_a.webp', starB: 'img/star_b.webp', bearHappy: 'img/bear_happy.webp', bearWow: 'img/bear_wow.webp',
   bearThink: 'img/bear_think.webp', avatar: 'img/avatar.webp', bearBody: 'img/bear_body.webp', gate: 'img/gate.webp', frameWide: 'img/frame_wide.webp', frameCard: 'img/frame_card.webp', hallChinese: 'img/hall_chinese.webp', hallScience: 'img/hall_science.webp', hallMarket: 'img/hall_market.webp', boss: 'img/boss.webp', forest: 'img/forest.webp', mathMap: 'img/mathmap.webp', music: 'img/music.webp', shopBg: 'img/shop_bg.webp', homeBg: 'img/home_bg.webp', badgeBg: 'img/badge_bg.webp', statusBg: 'img/status_bg.webp'
 }, window.INLINE_IMG || {});
-const AV = '11071000'; const vq = u => (u && !String(u).startsWith('data:')) ? u + '?v=' + AV : u;
+const AV = '11071100'; const vq = u => (u && !String(u).startsWith('data:')) ? u + '?v=' + AV : u;
 Object.keys(IMG).forEach(k => { IMG[k] = vq(IMG[k]); });
 // 道具小圖示（img/icon/）
 const icon = (n, cls = 'ic') => `<img class="${cls}" src="${vq('img/icon/' + n + '.webp')}" alt="">`;
@@ -908,7 +908,7 @@ function groupPick(pool, n) {
   return out.slice(0, n + 2);
 }
 const HALLS = {
-  chinese: { subj: '國語', name: '星語魔法館', bg: 'hallChinese', custom: true, frame: [395, 128, 870, 400], panel: [480, 262, 700, 235], opts: null, area: [470, 575, 720, 235],
+  chinese: { subj: '國語', name: '星語魔法館', bg: 'hallChinese', custom: true, frame: [395, 128, 870, 400], panel: [480, 292, 700, 215], opts: null, area: [470, 575, 720, 235],
     main: [555, 950, 340, 100], mainKit: 'pill_pink', mainText: '選擇單元', hint: [930, 950, 124, 100], bub: [330, 190, 380], greet: '歡迎來到星語魔法館！字詞就是魔法咒語喔。', face: 'cat',
     npc: { img: 'cat_full', box: [10, 380, 380, 520] },
     amb: s => { patch(s, 405, 295, 210, 120, 'a-float', '50% 50%', 'soft'); patch(s, 795, 375, 160, 100, 'a-float', '50% 50%', 'soft'); patch(s, 1015, 305, 215, 110, 'a-float', '50% 50%', 'soft');
@@ -1061,7 +1061,7 @@ function buildBoss() {
     const win = B2.hp === 0; const r = B2; B2 = null; Q.clear();
     const bonus = win ? 150 : 30; addCoins(bonus); addXP(win ? 80 : 20);
     if (win) { S.stars += 3; S.bossWins = (S.bossWins || 0) + 1; } save(); refreshHUD();
-    const { c, m } = modal(`<div class="cert" style="background-image:url('${IMG.frameWide}')"><div class="certin"><h2>${win ? '打倒迷糊小龍！' : '差一點點！'}</h2><p>${esc(KID ? KID.nick : '')}　${win ? '成功通過魔王試煉' : `打掉了 ${6 - r.hp} 顆愛心`}</p><p class="gainline">${icon('coin', 'coin')}+${r.coins + bonus}　${icon('gem', 'coin')}+${r.xp + (win ? 80 : 20)} 經驗${win ? '　+3 星星' : ''}</p></div></div><div class="actions"><button class="pill" data-a="ok">${win ? '太棒了！' : '再接再厲'}</button></div>`, { close: false, wide: true });
+    const { c, m } = modal(`<div class="cert" style="background-image:url('${IMG.frameWide}')"><div class="certin"><h2>${win ? '打倒迷糊小龍！' : '差一點點！'}</h2><p>${esc(KID ? KID.nick : '')}　${win ? '成功通過魔王試煉' : `打掉了 ${6 - r.hp} 顆愛心`}</p><p class="gainline">${icon('coin', 'coin')}+${r.coins + bonus}　${icon('gem', 'coin')}+${r.xp + (win ? 80 : 20)} 經驗${win ? '　+3 星星' : ''}</p></div></div><div class="actions"><button class="pill" data-a="ok">${win ? '太棒了！' : '再接再厲'}</button></div>`, { close: false, wide: true }); c.classList.add('certcard');
     if (win) SFX.level();
     on(c, '[data-a=ok]', () => { closeModal(m); menu(); if (pendingLevels.length) showLevelUps(); });
   }
@@ -1355,7 +1355,7 @@ function buildStatus() {
   const xp = el('div', 'xp stxp', s, '<i></i><b></b>'); place(xp, 186, 54, 268, 40);
   rbtn(s, 1142, 70, 50, () => go(backFrom || 'map', true), '返回'); rbtn(s, 1258, 70, 50, () => showBag(), '背包'); rbtn(s, 1373, 70, 50, showSettings, '設定');
   const rows = STATUS_ROWS.map(r => { const d = el('button', 'strow', s); place(d, 335, r.y - 40, 320, 80); d.addEventListener('click', () => { SFX.tap(); go(r.go, true); }); return d; });
-  const name = el('div', 'stname', s); place(name, 905, 292, 200, 56);
+  const name = el('div', 'stname', s); place(name, 905, 298, 200, 56);
   const sprBox = el('div', 'actor bunbox stspr', s); place(sprBox, 905, 372, 210, 250); const sb = el('div', 'body', sprBox); let sp = null, SA = null;
   btn(s, 'hot rect', 905, 372, 210, 250, () => { if (sp) { const P = POSE(SA); sp.play([P.giggle[rnd(P.giggle.length)]], 1200, 0, P.idle); SFX.ok(); say(); } }, '我的角色');
   const gear = el('div', 'stgear', s); place(gear, 808, 380, 80, 240);
@@ -1451,7 +1451,15 @@ function buildHome() {
     trayEl.innerHTML = free.length ? `<button class="spg" data-p="-1" ${tp ? '' : 'disabled'}>◀</button><div class="trayitems">${free.slice(tp * TPP, tp * TPP + TPP).map(id => `<button class="titem" data-id="${id}"><img src="${shopURL(id)}" alt=""><small>${esc(itemOf('furn', id).name)}</small></button>`).join('')}</div><button class="spg" data-p="1" ${tp < pages - 1 ? '' : 'disabled'}>▶</button>`
       : `<p class="traynote">${(S.inv.furn || []).length ? '家具都擺好了！按家具可以移動、翻轉或收起來。' : '還沒有家具喔！到地圖右下角的家具店買吧。'}</p>`;
     trayEl.querySelectorAll('[data-p]').forEach(b => b.onclick = () => { SFX.tap(); tp += +b.dataset.p; tray(); });
-    trayEl.querySelectorAll('.titem').forEach(b => b.onclick = () => { SFX.ok(); const it = { id: b.dataset.id, x: 724 + rr(-80, 80) | 0, y: 700 + rr(-40, 40) | 0, f: false }; S.home.items.push(it); drawAll(); select(it); tray(); save(); checkBadges(); setTimeout(showBadgeQueue, 600); });
+    trayEl.querySelectorAll('.titem').forEach(b => b.onclick = () => { SFX.ok(); const sp = freeSpot(); const it = { id: b.dataset.id, x: sp[0], y: sp[1], f: false }; S.home.items.push(it); drawAll(); select(it); tray(); save(); checkBadges(); setTimeout(showBadgeQueue, 600); });
+  }
+  // 新家具放在地板上最空的位置，不會全部疊在中間、也不會擋住角色
+  function freeSpot() {
+    const spots = [[430, 840], [1010, 840], [600, 950], [860, 950], [1160, 720], [300, 760], [760, 600], [1040, 610], [520, 640], [1230, 900]];
+    const taken = S.home.items.map(x => [x.x, x.y]).concat([[K.x, K.y]]);
+    let best = spots[0], bd = -1;
+    spots.forEach(p => { const d = Math.min(...taken.map(t => Math.hypot(p[0] - t[0], (p[1] - t[1]) * 1.4))); if (d > bd) { bd = d; best = p; } });
+    return [best[0] + rr(-20, 20) | 0, best[1] + rr(-12, 12) | 0];
   }
   function setEdit(on) { edit = on; s.classList.toggle('editing', on); editBtn.textContent = on ? '完成' : '擺家具'; trayEl.style.display = on ? 'flex' : 'none'; if (!on) { sel = null; drawAll(); } tools(); tray(); if (on) say('拖拉家具，擺到喜歡的地方吧！'); else { save(); flushSave(); } }
   // tap the floor: walk there / deselect
@@ -1479,7 +1487,7 @@ function buildResult() {
   petals(s, 7);
   const rh = makeHUD(s, { face: [96, 63, 47], lv: [200, 73], xp: [238, 58, 292, 37], coin: [995, 50, 175, 62], bag: [1253, 71, 48], settings: [1374, 71, 48] }); rh.lv.classList.add('gold');
   const stars = STAR_POS.map(([k, x, y, w, h]) => { const im = el('img', 'rstar', s); im.src = IMG[k]; im.alt = ''; place(im, x, y, w, h); return im; });
-  const banner = el('div', 'banner', s); place(banner, 520, 262, 408, 40);
+  const banner = el('div', 'banner rbanner', s); place(banner, 724, 748); // 放在獎勵上方，不會被星星蓋住
   const gain = el('div', 'gain', s); place(gain, 724, 812);
   const again = btn(s, 'bigbtn pink', 257, 896, 428, 154, () => { if (lastRetry) lastRetry(); }, '再玩一次'); again.textContent = '再玩一次';
   const back = btn(s, 'bigbtn cream', 753, 896, 428, 154, () => { go(lastBack || 'bakery', true); }, '回餐廳'); back.textContent = '回餐廳';
@@ -1641,7 +1649,7 @@ function showAuth(mode = 'login', msg = '') {
   showGate(``+
     (inv ? `<p class="note">你收到好友圈的邀請，登入或註冊後就會送出加入申請。</p>` : '') +
     (mode === 'register' ? `<label class="fl">家庭名稱<input id="g-name" maxlength="12" placeholder="例如：小安家"></label>` : '') +
-    `<label class="fl">家長 Email<input id="g-email" type="email" autocomplete="email" inputmode="email"></label>` +
+    `<label class="fl">家長 Email<input id="g-email" type="email" autocomplete="email" inputmode="email" autocapitalize="off" autocorrect="off" spellcheck="false"></label>` +
     (mode !== 'reset' ? `<label class="fl">密碼<input id="g-pw" type="password" autocomplete="${mode === 'register' ? 'new-password' : 'current-password'}" placeholder="至少 6 個字"></label>` : '') +
     (mode === 'register' ? `<label class="fl">再輸入一次密碼<input id="g-pw2" type="password" autocomplete="new-password"></label>` : '') +
     `<p class="err">${esc(msg)}</p><button class="pill" id="g-go">${{ login: '登入', register: '註冊', reset: '寄送重設密碼信' }[mode]}</button>` +
@@ -1663,6 +1671,8 @@ function showAuth(mode = 'login', msg = '') {
       } else { await BE.reset(email); busy(go, false); return showAuth('login', '重設密碼的信已寄出，請到信箱收信。'); }
     } catch (e) { busy(go, false); err(errMsg(e)); }
   };
+  // iPad 鍵盤按「前往／Enter」也能直接登入
+  gateCard.querySelectorAll('input').forEach(i => i.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); if (!go.disabled) go.onclick(); } }));
 }
 
 async function handleInvite() {
@@ -1721,14 +1731,17 @@ function adultGate(fn, note) {
   if (Date.now() < parentOkUntil) return fn();
   const pp = FAMILY && FAMILY.parentPin;
   if (!pp || !pp.hash) return setParentPin(fn, note);
-  const { c, m } = modal(`<h2>家長密碼</h2>${note ? `<p class="muted">${esc(note)}</p>` : ''}<p>請輸入家長密碼</p>` +
-    `<div class="actions"><input class="gatein pw" type="password" inputmode="numeric" pattern="[0-9]*" maxlength="8" autocomplete="off" aria-label="家長密碼"><button class="pill" data-a="go">確認</button></div>` +
+  const { c, m } = modal(`<h2>家長密碼</h2>${note ? `<p class="muted">${esc(note)}</p>` : ''}<p>請輸入家長密碼${BE.kind === 'cloud' ? '<br><small class="muted">（也可以輸入家長帳號的登入密碼）</small>' : ''}</p>` +
+    `<div class="actions"><input class="gatein pw" type="password" maxlength="64" autocomplete="off" autocapitalize="off" autocorrect="off" aria-label="家長密碼"><button class="pill" data-a="go">確認</button></div>` +
     `<p class="err center"></p><p class="center"><button class="linkbtn" data-a="forgot">忘記家長密碼？</button></p>`);
   const inp = c.querySelector('input'), er = c.querySelector('.err'); setTimeout(() => inp.focus(), 100);
   const go2 = async () => {
     const v = inp.value.trim(); if (!v) return;
     if (adultGate.lockUntil && Date.now() < adultGate.lockUntil) { er.textContent = '嘗試太多次，請等 30 秒再試'; return; }
-    if (await hashPin(pp.salt, v) === pp.hash) { adultGate.fails = 0; parentOkUntil = Date.now() + 5 * 60000; closeModal(m); fn(); return; }
+    const pass = () => { adultGate.fails = 0; parentOkUntil = Date.now() + 5 * 60000; closeModal(m); fn(); };
+    if (await hashPin(pp.salt, v) === pp.hash) return pass();
+    // 家長常把「帳號登入密碼」打在這裡：雲端版也接受帳號登入密碼
+    if (BE.kind === 'cloud' && v.length >= 6) { er.textContent = '確認中…'; try { await BE.reauth(inp.value); return pass(); } catch (e) { er.textContent = ''; } }
     inp.value = ''; SFX.bad(); adultGate.fails = (adultGate.fails || 0) + 1;
     if (adultGate.fails >= 5) { adultGate.fails = 0; adultGate.lockUntil = Date.now() + 30000; er.textContent = '嘗試太多次，請等 30 秒再試'; } else er.textContent = '密碼不正確';
   };
