@@ -795,3 +795,10 @@ input,textarea,select{-webkit-user-select:text;user-select:text;-webkit-touch-ca
 .rzone.perfect{background:rgba(255,220,90,.3)}
 .rzone.good{background:rgba(140,230,170,.2)}
 .rzone.bad{background:rgba(250,170,150,.14)}
+/* 編輯器顏色：8 色排兩排（貓咪 4 色排大一點） */
+.pd-cols{display:grid;grid-template-columns:repeat(4,1fr);gap:calc(var(--u)*8);align-content:center;justify-items:center;background:#fbf3e6;border-radius:calc(var(--u)*26);padding:calc(var(--u)*10)}
+.pd-cols .pd-col{position:relative;width:calc(var(--u)*66);height:calc(var(--u)*66)}
+.pd-cols.few{grid-template-columns:repeat(2,1fr)}
+.pd-cols.few .pd-col{width:calc(var(--u)*110);height:calc(var(--u)*110)}
+/* 沒有帽子原畫的動物：商店帽子疊在頭上 */
+.sprite .dollbox img.dl-hat{left:20%;width:60%;height:auto;transform:translateY(-62%)}

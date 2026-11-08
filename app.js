@@ -7,7 +7,7 @@ const IMG = Object.assign({
   starA: 'img/star_a.webp', starB: 'img/star_b.webp', bearHappy: 'img/bear_happy.webp', bearWow: 'img/bear_wow.webp',
   bearThink: 'img/bear_think.webp', avatar: 'img/avatar.webp', bearBody: 'img/bear_body.webp', gate: 'img/gate.webp', frameWide: 'img/frame_wide.webp', frameCard: 'img/frame_card.webp', hallChinese: 'img/hall_chinese.webp', hallScience: 'img/hall_science.webp', hallMarket: 'img/hall_market.webp', boss: 'img/boss.webp', forest: 'img/forest.webp', mathMap: 'img/mathmap.webp', music: 'img/music_stage.webp', shopBg: 'img/shop_bg.webp', homeBg: 'img/home_bg.webp', badgeBg: 'img/badge_bg.webp', statusBg: 'img/status_bg.webp'
 }, window.INLINE_IMG || {});
-const AV = '11081900'; const vq = u => (u && !String(u).startsWith('data:')) ? u + '?v=' + AV : u;
+const AV = '11082000'; const vq = u => (u && !String(u).startsWith('data:')) ? u + '?v=' + AV : u;
 Object.keys(IMG).forEach(k => { IMG[k] = vq(IMG[k]); });
 // 道具小圖示（img/icon/）
 const icon = (n, cls = 'ic') => `<img class="${cls}" src="${vq('img/icon/' + n + '.webp')}" alt="">`;
@@ -354,9 +354,9 @@ const FR_REF = { turn: 506, angry: 361, happy: 319, sad: 391, walk: 346 };
 const FR_PX = { turn: [506,510,502,500,485,457,452,474], angry: [361,361,361,367,358,353], happy: [319,320,319,302,313,329], sad: [391,387,386,385,381,364], walk: [346,339,341,348,345,349] };
 const frH = n => { if (ANIM_H[n]) return ANIM_H[n]; const [k, i] = n.split('_'); return FR_PX[k][+i] / FR_REF[k] * 100; };
 const bunURL = n => (window.INLINE_IMG && window.INLINE_IMG['bun_' + n]) || vq(`img/bunny/${n}.webp`);
-const ANIM_H = {"panda_0": 100.0, "panda_1": 99.6, "panda_2": 99.6, "panda_3": 100.0, "panda_4": 99.8, "panda_5": 99.8, "panda_6": 92.1, "panda_7": 100.0, "penguin_0": 100.0, "penguin_1": 99.8, "penguin_2": 100.0, "penguin_3": 100.2, "penguin_4": 100.7, "penguin_5": 100.2, "penguin_6": 94.0, "penguin_7": 100.7, "shiba_0": 100.0, "shiba_1": 101.1, "shiba_2": 94.7, "shiba_3": 99.8, "shiba_4": 104.7, "shiba_5": 102.4, "shiba_6": 95.1, "shiba_7": 100.0, "fawn_0": 100.0, "fawn_1": 99.3, "fawn_2": 98.9, "fawn_3": 95.5, "fawn_4": 101.6, "fawn_5": 99.6, "fawn_6": 94.6, "fawn_7": 101.1};
+const ANIM_H = {"cat_0": 100.0, "cat_1": 103.1, "cat_2": 103.0, "cat_3": 102.4, "cat_4": 102.0, "cat_5": 107.1, "cat_6": 107.1, "cat_7": 107.1, "panda_0": 100.0, "panda_1": 99.6, "panda_2": 99.6, "panda_3": 100.0, "panda_4": 99.8, "panda_5": 99.8, "panda_6": 92.1, "panda_7": 100.0, "penguin_0": 100.0, "penguin_1": 99.8, "penguin_2": 100.0, "penguin_3": 100.2, "penguin_4": 100.7, "penguin_5": 100.2, "penguin_6": 94.0, "penguin_7": 100.7, "shiba_0": 100.0, "shiba_1": 101.1, "shiba_2": 94.7, "shiba_3": 99.8, "shiba_4": 104.7, "shiba_5": 102.4, "shiba_6": 95.1, "shiba_7": 100.0, "fawn_0": 100.0, "fawn_1": 99.3, "fawn_2": 98.9, "fawn_3": 95.5, "fawn_4": 101.6, "fawn_5": 99.6, "fawn_6": 94.6, "fawn_7": 101.1};
 const ANIMALS = [
-  { key: 'bunny', name: '魔法兔兔', short: '兔' }, { key: 'shiba', name: '柴犬', short: '柴' }, { key: 'panda', name: '熊貓', short: '熊貓' },
+  { key: 'bunny', name: '魔法兔兔', short: '兔' }, { key: 'cat', name: '貓咪', short: '貓' }, { key: 'shiba', name: '柴犬', short: '柴' }, { key: 'panda', name: '熊貓', short: '熊貓' },
   { key: 'penguin', name: '企鵝', short: '企鵝' }, { key: 'fawn', name: '小鹿', short: '鹿' }
 ];
 const animalOf = k => ANIMALS.find(a => a.key === k) || ANIMALS[0];
@@ -367,14 +367,14 @@ function POSE(k) {
   return { idle: f(0), walk: [f(1)], back: f(2), looks: [f(3), f(7), f(1)], cheer: [f(4)], cheerMs: 1100, oops: [f(6)], cry: [f(6)], pout: [f(5)], giggle: [f(7), f(4), f(3)], sideLeft: true };
 }
 const poseFrames = P => Array.from(new Set([P.idle, ...P.walk, P.back, ...P.looks, ...P.cheer, ...P.oops, ...P.cry, ...P.pout, ...P.giggle]));
-const isAnimFrame = n => /^(shiba|panda|penguin|fawn)_\d$/.test(n);
+const isAnimFrame = n => /^(shiba|panda|penguin|fawn|cat)_\d$/.test(n);
 const frURL = n => isAnimFrame(n) ? ((window.INLINE_IMG && window.INLINE_IMG['an_' + n]) || vq(`img/animals/${n.split('_')[0]}/${n.split('_')[1]}.webp`)) : bunURL(n);
 const animalImg = a => frURL(POSE(a).idle);
 /* ---------- 換裝娃娃：用「動物穿上每件裝備」的原畫組合出角色 ---------- */
 // img/doll/{動物}/hat_N.webp、cape_N.webp、base.webp 都放在同一張 420×520 畫布、腳底對齊。
 // 戴帽子＝頭部用帽子那張，穿披風＝身體用披風那張，兩張在脖子處接起來；法杖用商店的法杖圖拿在手上。
-const DOLL = { bunny: { neck: 60.5, bodyTop: 6.8 }, shiba: { neck: 61.7, bodyTop: 16.9 }, panda: { neck: 62.2, bodyTop: 23.4 }, penguin: { neck: 66.4, bodyTop: 23.6 }, fawn: { neck: 63.8, bodyTop: 22.4 } };
-const DOLL_HAS = { bunny: ['hat', 'cape'], shiba: ['hat', 'cape'], panda: ['hat', 'cape'], penguin: ['hat', 'cape'], fawn: ['hat'] };
+const DOLL = { cat: { neck: 62, bodyTop: 17.7 }, bunny: { neck: 60.5, bodyTop: 6.8 }, shiba: { neck: 61.7, bodyTop: 16.9 }, panda: { neck: 62.2, bodyTop: 23.4 }, penguin: { neck: 66.4, bodyTop: 23.6 }, fawn: { neck: 63.8, bodyTop: 22.4 } };
+const DOLL_HAS = { bunny: ['hat', 'cape'], shiba: ['hat', 'cape'], panda: ['hat', 'cape'], penguin: ['hat', 'cape'], fawn: ['hat'], cat: [] };
 const dollURL = (an, f) => vq(`img/doll/${an}/${f}.webp`);
 const spriteAnimal = names => names.includes('turn_0') ? 'bunny' : String(names[0]).split('_')[0];
 const curEquip = () => (typeof S !== 'undefined' && S && S.equip) || {};
@@ -383,13 +383,16 @@ const wearing = eq => !!(eq.hat || eq.cape || eq.wand);
 function itemThumb(cat, id) { const an = (KID && KID.animal) || 'bunny'; return (DOLL_HAS[an] || []).includes(cat) ? dollURL(an, id) : shopURL(id); }
 /* ---------- 紙娃娃：動物＋顏色＋頭飾／眼鏡／背飾 ---------- */
 // 顏色 0~3 對應 img/paper/{動物}_{n}.webp；配件疊在固定位置（%，以 420×520 畫布為準）
-const PAPER_POS = { bunny: { eyeY: 43.5, gw: 34, headY: 20.8 }, panda: { eyeY: 46, gw: 40, headY: 31.2 }, fawn: { eyeY: 50, gw: 40, headY: 30.2 }, shiba: { eyeY: 47, gw: 40, headY: 24.8 }, penguin: { eyeY: 44, gw: 40, headY: 31.4 } };
+const PAPER_POS = { cat: { eyeY: 47.5, gw: 40, headY: 25.4 }, bunny: { eyeY: 43.5, gw: 34, headY: 20.8 }, panda: { eyeY: 46, gw: 40, headY: 31.2 }, fawn: { eyeY: 50, gw: 40, headY: 30.2 }, shiba: { eyeY: 47, gw: 40, headY: 24.8 }, penguin: { eyeY: 44, gw: 40, headY: 31.4 } };
 const PAPER_OPTS = {
   head: [['', '不戴'], ['crown', '小皇冠'], ['flower', '紫色花朵'], ['clip_star', '星星髮夾'], ['clip_heart', '愛心髮夾'], ['clip_flower', '小花髮夾'], ['clip_butterfly', '蝴蝶髮夾']],
-  face: [['', '不戴'], ['glasses', '圓眼鏡'], ['glasses_pink', '粉紅眼鏡'], ['glasses_green', '綠框眼鏡'], ['glasses_star', '星星眼鏡'], ['glasses_heart', '愛心眼鏡'], ['monocle', '單片眼鏡']],
+  face: [['', '不戴'], ['glasses', '圓眼鏡'], ['glasses_pink', '粉紅眼鏡'], ['glasses_green', '綠框眼鏡'], ['glasses_star', '星星眼鏡'], ['glasses_heart', '愛心眼鏡'], ['monocle', '單片眼鏡'], ['glasses_oct', '八角眼鏡'], ['glasses_sun', '圓墨鏡'], ['glasses_stars', '星星小眼鏡'], ['glasses_cloud', '雲朵眼鏡']],
   back: [['', '不戴'], ['wings', '天使翅膀']]
 };
-const PAPER_COLORS = ['原色', '第二色', '第三色', '第四色'];
+const PAPER_COLORS = ['原色', '奶油色', '淺粉色', '灰色', '紫色', '粉紅色', '薄荷綠', '天空藍'];
+const CAT_COLORS = ['橘貓', '白貓', '黑貓', '三花貓'];
+const paperCount = an => an === 'cat' ? 4 : 8;   // 貓咪 4 色，其他動物 8 色（原本 4 色＋新粉彩 4 色）
+const colorName = (an, i) => (an === 'cat' ? CAT_COLORS : PAPER_COLORS)[i] || '';
 const paperURL = (an, c) => vq(`img/paper/${an}_${c || 0}.webp`);
 const accURL = n => vq(`img/paper/acc_${n}.webp`);
 const kidLook = k => (k && k.look && typeof k.look === 'object') ? k.look : null;
@@ -408,8 +411,9 @@ function dollHTML(an, eq, look) {
   let h = look && look.back ? `<img class="pa pa-back" src="${accURL(look.back)}" alt="">` : '';
   if (head === body) h += `<img class="dl" src="${src(head)}" alt="">`;
   else h += `<img class="dl" src="${src(body)}" alt="" style="clip-path:inset(${D.neck}% 0 0 0)"><img class="dl" src="${src(head)}" alt="" style="clip-path:inset(0 0 ${(100 - D.neck).toFixed(1)}% 0)">`;
-  if (look) h += lookHTML(an, look, !!hat);
-  if (eq.cape && !cape) h += `<img class="dl-cape" src="${shopURL(eq.cape)}" alt="" style="top:${D.neck - 2}%">`; // 沒有原畫的動物：披風疊在身上
+  if (look) h += lookHTML(an, look, !!(hat || eq.hat));
+  if (eq.cape && !cape) h += `<img class="dl-cape" src="${shopURL(eq.cape)}" alt="" style="top:${D.neck - 2}%">`;
+  if (eq.hat && !hat) { const pp = PAPER_POS[an] || PAPER_POS.bunny; h += `<img class="dl-hat" src="${shopURL(eq.hat)}" alt="" style="top:${pp.headY}%">`; } // 沒有原畫的動物：披風疊在身上
   if (eq.wand) h += `<img class="dl-wand" src="${shopURL(eq.wand)}" alt="">`;
   return h;
 }
@@ -1587,11 +1591,12 @@ function buildResult() {
   const gain = el('div', 'gain', s); place(gain, 724, 812);
   const again = btn(s, 'bigbtn pink', 257, 896, 428, 154, () => { if (lastRetry) lastRetry(); }, '再玩一次'); again.textContent = '再玩一次';
   const back = btn(s, 'bigbtn cream', 753, 896, 428, 154, () => { go(lastBack || 'bakery', true); }, '回餐廳'); back.textContent = '回餐廳';
-  const HAPPY = ['bunny', 'shiba', 'panda', 'penguin']; // 有開心表情原畫的角色（小鹿還沒有，先用自己的角色）
+  const HAPPY = ['bunny', 'shiba', 'panda', 'penguin', 'cat']; // 有開心表情原畫的角色（小鹿還沒有，先用自己的角色）
   function heroShow() {
     const a = (KID && KID.animal) || 'bunny';
     if (HAPPY.includes(a)) {
-      if (heroA !== 'happy-' + a) { heroA = 'happy-' + a; heroSpr = null; heroBody.innerHTML = `<img class="happyimg" src="${vq('img/happy/' + a + '.webp')}" alt="">`; }
+      const hf = a === 'cat' ? 'cat_' + Math.min(3, (kidLook(KID) || {}).c || 0) : a;
+      if (heroA !== 'happy-' + hf) { heroA = 'happy-' + hf; heroSpr = null; heroBody.innerHTML = `<img class="happyimg" src="${vq('img/happy/' + hf + '.webp')}" alt="">`; }
     } else {
       if (!heroSpr || heroA !== a) { heroA = a; heroBody.innerHTML = ''; heroSpr = makeSprite(heroBody, poseFrames(POSE(a))); }
       const P = POSE(a); heroSpr.dress(); heroSpr.show(P.idle); setTimeout(() => heroSpr.play(P.cheer, P.cheerMs === 140 ? 140 : 900, 400, P.idle), 600);
@@ -1881,7 +1886,7 @@ function paperDoll(init, onDone, onCancel, opts = {}) {
   const done = () => { gate.classList.remove('editor'); gate.style.setProperty('--src', `url("${IMG.gate}")`); };
   const ttl = el('div', 'pd-title', L, '我的角色'); place(ttl, 150, 214, 180, 44);
   const animBox = el('div', 'pd-anims', L); place(animBox, 86, 352, 300, 214);
-  const colBtns = [[110, 647], [247, 647], [110, 762], [247, 762]].map(([x, y], i) => { const b = el('button', 'pd-col', L); place(b, x, y, 116, 116); b.onclick = () => { st.c = i; SFX.tap(); draw(); }; return b; });
+  const colBox = el('div', 'pd-cols', L); place(colBox, 84, 606, 304, 276);
   const secs = { head: [952, 336, 412, 108], face: [952, 534, 412, 106], back: [952, 727, 412, 128] };
   const secEl = {}; Object.entries(secs).forEach(([k, bx]) => { secEl[k] = el('div', 'pd-opts', L); place(secEl[k], ...bx); });
   const lab = (t, x, y) => { const d = el('div', 'pd-lab', L, t); place(d, x, y, 170, 30); };
@@ -1893,7 +1898,10 @@ function paperDoll(init, onDone, onCancel, opts = {}) {
   function draw() {
     animBox.innerHTML = ANIMALS.filter(a => !opts.lockAnimal || a.key === st.animal).map(a => `<button class="pd-anim ${a.key === st.animal ? 'on' : ''}" data-an="${a.key}"><img src="${paperURL(a.key, a.key === st.animal ? st.c : 0)}" alt=""><span>${a.name}</span></button>`).join('');
     animBox.querySelectorAll('[data-an]').forEach(b => b.onclick = () => { st.animal = b.dataset.an; SFX.ok(); draw(); });
-    colBtns.forEach((b, i) => { b.innerHTML = `<img src="${paperURL(st.animal, i)}" alt="">`; b.classList.toggle('on', i === st.c); b.setAttribute('aria-label', PAPER_COLORS[i]); });
+    if (st.c >= paperCount(st.animal)) st.c = 0;
+    colBox.classList.toggle('few', paperCount(st.animal) <= 4);
+    colBox.innerHTML = Array.from({ length: paperCount(st.animal) }, (_, i) => `<button class="pd-col ${i === st.c ? 'on' : ''}" data-c="${i}" aria-label="${colorName(st.animal, i)}"><img src="${paperURL(st.animal, i)}" alt=""></button>`).join('');
+    colBox.querySelectorAll('[data-c]').forEach(b => b.onclick = () => { st.c = +b.dataset.c; SFX.tap(); draw(); });
     Object.keys(secs).forEach(k => {
       secEl[k].innerHTML = PAPER_OPTS[k].map(([v, nm]) => `<button class="pd-opt ${st[k] === v ? 'on' : ''}" data-v="${v}" aria-label="${nm}">${v ? `<img src="${accURL(v)}" alt="">` : '<span>不戴</span>'}</button>`).join('');
       secEl[k].querySelectorAll('[data-v]').forEach(b => b.onclick = () => { st[k] = b.dataset.v; SFX.tap(); draw(); bounce(); });
