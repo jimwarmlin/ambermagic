@@ -699,3 +699,17 @@ input,textarea,select{-webkit-user-select:text;user-select:text;-webkit-touch-ca
 /* 狀態頁：名字和側邊分頁字加深，淺色底上也看得清楚 */
 .stname{text-shadow:0 0 calc(var(--u)*3) #b03a6e,0 calc(var(--u)*2) calc(var(--u)*3) rgba(140,30,80,.9);font-weight:700}
 .sttab{font-weight:700;text-shadow:0 0 calc(var(--u)*3) rgba(80,30,20,.95),0 1px 2px rgba(80,30,20,.9)}
+/* 小鳥音樂亭：獨立的小鳥角色、程式畫的節奏軌道、長按音符 */
+.actor.bird{z-index:3}
+.actor.bird .body{animation:breathe 2.4s ease-in-out infinite}
+.actor.bird img{object-fit:contain;object-position:50% 100%}
+.actor.bird.hop .body{animation:birdhop .32s ease-out}
+@keyframes birdhop{0%{transform:translateY(0) scale(1,1)}35%{transform:translateY(-9%) scale(.96,1.05)}70%{transform:translateY(0) scale(1.05,.95)}100%{transform:translateY(0) scale(1,1)}}
+.rtrack{border-radius:999px;background:linear-gradient(180deg,rgba(255,250,255,.55),rgba(240,215,250,.7));border:calc(var(--u)*5) solid rgba(255,236,170,.95);box-shadow:0 0 calc(var(--u)*22) rgba(255,220,140,.75),inset 0 0 calc(var(--u)*16) rgba(255,255,255,.7);z-index:4;pointer-events:none}
+.rhit{border-radius:50%;border:calc(var(--u)*7) solid #fff;box-shadow:0 0 calc(var(--u)*18) rgba(255,200,120,.95),inset 0 0 calc(var(--u)*14) rgba(255,210,150,.8);background:rgba(255,245,220,.35);z-index:4;pointer-events:none;transition:transform .1s}
+.rhit.holding{transform:scale(1.12);box-shadow:0 0 calc(var(--u)*30) rgba(255,170,80,1),inset 0 0 calc(var(--u)*20) rgba(255,190,120,.9)}
+.rnote span{position:relative;z-index:2}
+.rnote.hold{overflow:visible}
+.rnote .tail{position:absolute;left:50%;top:22%;height:56%;border-radius:0 999px 999px 0;background:linear-gradient(180deg,#fff3a8,#ffc95c);border:calc(var(--u)*3) solid #fff;box-shadow:0 0 calc(var(--u)*12) rgba(255,200,90,.9);z-index:0}
+.rnote.hold{background:radial-gradient(circle at 35% 30%,#fff,#fff0a0 60%,#f6b73c)}
+.rnote.held{box-shadow:0 0 calc(var(--u)*30) rgba(255,190,60,1);transform:scale(1.08)}

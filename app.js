@@ -5,9 +5,9 @@ const W = 1448, H = 1086;
 const IMG = Object.assign({
   map: 'img/map.webp', bakery: 'img/bakery.webp', result: 'img/result.webp',
   starA: 'img/star_a.webp', starB: 'img/star_b.webp', bearHappy: 'img/bear_happy.webp', bearWow: 'img/bear_wow.webp',
-  bearThink: 'img/bear_think.webp', avatar: 'img/avatar.webp', bearBody: 'img/bear_body.webp', gate: 'img/gate.webp', frameWide: 'img/frame_wide.webp', frameCard: 'img/frame_card.webp', hallChinese: 'img/hall_chinese.webp', hallScience: 'img/hall_science.webp', hallMarket: 'img/hall_market.webp', boss: 'img/boss.webp', forest: 'img/forest.webp', mathMap: 'img/mathmap.webp', music: 'img/music.webp', shopBg: 'img/shop_bg.webp', homeBg: 'img/home_bg.webp', badgeBg: 'img/badge_bg.webp', statusBg: 'img/status_bg.webp'
+  bearThink: 'img/bear_think.webp', avatar: 'img/avatar.webp', bearBody: 'img/bear_body.webp', gate: 'img/gate.webp', frameWide: 'img/frame_wide.webp', frameCard: 'img/frame_card.webp', hallChinese: 'img/hall_chinese.webp', hallScience: 'img/hall_science.webp', hallMarket: 'img/hall_market.webp', boss: 'img/boss.webp', forest: 'img/forest.webp', mathMap: 'img/mathmap.webp', music: 'img/music_stage.webp', shopBg: 'img/shop_bg.webp', homeBg: 'img/home_bg.webp', badgeBg: 'img/badge_bg.webp', statusBg: 'img/status_bg.webp'
 }, window.INLINE_IMG || {});
-const AV = '11071200'; const vq = u => (u && !String(u).startsWith('data:')) ? u + '?v=' + AV : u;
+const AV = '11081600'; const vq = u => (u && !String(u).startsWith('data:')) ? u + '?v=' + AV : u;
 Object.keys(IMG).forEach(k => { IMG[k] = vq(IMG[k]); });
 // 道具小圖示（img/icon/）
 const icon = (n, cls = 'ic') => `<img class="${cls}" src="${vq('img/icon/' + n + '.webp')}" alt="">`;
@@ -1120,9 +1120,22 @@ const SONGS2 = [
 ];
 function buildMusic() {
   const s = screen('music', 'music');
-  patch(s, 285, 430, 165, 230, 'a-bounce', '50% 100%', 'soft'); patch(s, 450, 410, 175, 240, 'a-bounce2', '50% 100%', 'soft'); patch(s, 610, 420, 195, 230, 'a-bounce', '50% 100%', 'soft');
-  [[40, 245], [75, 300], [125, 230], [160, 190], [260, 370], [350, 345], [455, 330], [570, 345], [690, 345], [835, 420], [1400, 390], [230, 650], [880, 650]].forEach(p => glow(s, p[0], p[1], 26, 'warm'));
-  patch(s, 1110, 560, 240, 140, 'a-shimmer', '50% 50%', 'soft'); petals(s, 7);
+  // 背景沒有畫小鳥，三隻小鳥是獨立角色，分開站在舞台上，不會再重疊
+  [[45, 265], [80, 320], [125, 250], [165, 200], [262, 370], [350, 352], [455, 345], [570, 352], [690, 352], [745, 370], [222, 648], [890, 648], [1400, 400]].forEach(p => glow(s, p[0], p[1], 24, 'warm'));
+  petals(s, 7);
+  const BX = [250, 455, 662], BY = [470, 455, 470];
+  const BIRDS = ['pink', 'yellow', 'blue'].map((k, i) => {
+    const b = el('div', 'actor bird', s); place(b, BX[i], BY[i], 190, 230);
+    b.innerHTML = `<div class="body"><img src="${vq('img/birds/' + k + '_front.webp')}" alt=""></div>`;
+    b.querySelector('.body').style.animationDelay = (-i * 0.4) + 's';
+    btn(s, 'hot rect', BX[i], BY[i], 190, 230, () => { hopBird(i); SFX.ok(); say(['啾啾！我是鼓手小粉！', '嗶～我最會吹笛子！', '叮叮噹，我負責鈴鼓！'][i], 'happy', 2200); }, ['小粉', '小黃', '小藍'][i]);
+    return { el: b, img: b.querySelector('img'), k };
+  });
+  function birdPose(play) { BIRDS.forEach(b => { b.img.src = vq('img/birds/' + b.k + (play ? '_play' : '_front') + '.webp'); b.el.classList.toggle('playing', play); }); }
+  function hopBird(i) { const b = BIRDS[i].el; b.classList.remove('hop'); void b.offsetWidth; b.classList.add('hop'); }
+  // 節奏軌道與打擊圈（新背景沒有畫，用程式畫）
+  const track = el('div', 'rtrack', s); place(track, 60, 812, 1340, 130);
+  const hitRing = el('div', 'rhit', s); place(hitRing, 135 - 62, 877 - 62, 124, 124);
   backPill(s, '回地圖', () => { if (G3) stopSong(true); go('map', true); });
   const chip = el('div', 'hallchip', s); place(chip, 1080, 24, 340, 64);
   const say = hallBubble(s, 820, 150, 400);
@@ -1133,7 +1146,7 @@ function buildMusic() {
   const HIT = { x: 135, y: 877 }, SPAWN_X = 1390, LEAD = 4;
   let G3 = null;
   function pickSong() {
-    const { c, m } = modal(`<h2>小鳥音樂亭・選一首歌</h2><p class="muted">音符跑到左邊的圓圈時，點一下螢幕！跟著節奏唸出來會更準喔。</p><div class="uchips">${SONGS2.map(sg => `<button class="uchip" data-s="${sg.id}"><b>${sg.name}</b><small>${(S.unitStars || {})['音樂|' + sg.id] ? starStr(S.unitStars['音樂|' + sg.id]) : '尚未挑戰'}</small></button>`).join('')}</div>`, { wide: true });
+    const { c, m } = modal(`<h2>小鳥音樂亭・選一首歌</h2><p class="muted">音符跑到左邊的圓圈時，點一下螢幕！<b>有長尾巴的音符要按住不放</b>，等尾巴跑完再放開。跟著節奏唸出來會更準喔。</p><div class="uchips">${SONGS2.map(sg => `<button class="uchip" data-s="${sg.id}"><b>${sg.name}</b><small>${(S.unitStars || {})['音樂|' + sg.id] ? starStr(S.unitStars['音樂|' + sg.id]) : '尚未挑戰'}</small></button>`).join('')}</div>`, { wide: true });
     c.querySelectorAll('[data-s]').forEach(b => b.onclick = () => { closeModal(m); startSong(SONGS2.find(x => x.id === b.dataset.s)); });
   }
   const PENTA = [523, 587, 659, 784, 880, 1047, 1175, 1319];
@@ -1143,46 +1156,63 @@ function buildMusic() {
     Music.duck(true, 0);
     const c = AC(), beat = 60 / sg.bpm, t0 = c.currentTime + 0.4 + LEAD * beat;
     const notes = []; let b = 0;
-    sg.lines.forEach(line => { [...line].forEach(ch => { notes.push({ t: t0 + b * beat, ch, hit: false, miss: false }); b++; }); b++; });
+    sg.lines.forEach(line => { const chs = [...line]; chs.forEach((ch, j) => { notes.push({ t: t0 + b * beat, ch, hit: false, miss: false, dur: j === chs.length - 1 ? beat * 1.5 : 0 }); b++; }); b++; });
     const end = t0 + b * beat + 1;
     for (let i = 0; i < LEAD; i++) ping(i === LEAD - 1 ? 1047 : 784, c.currentTime + 0.4 + i * beat, 0.1, 0.12, 'square');
     for (let k = 0; k < b; k++) ping(110, t0 + k * beat, k % 4 === 0 ? 0.18 : 0.09, 0.12, 'sine');
-    notes.forEach(n => { n.el = el('div', 'rnote', lane, esc(n.ch)); n.el.style.display = 'none'; });
-    G3 = { sg, notes, beat, end, perfect: 0, good: 0, miss: 0, raf: 0 };
-    lane.style.pointerEvents = 'auto'; startBtn.style.display = 'none'; say(`「${sg.name}」準備，3、2、1！`, 'happy', 2200);
-    const travel = 2.6;
+    const travel = 2.6, PXS = (SPAWN_X - HIT.x) / travel; // 音符每秒移動的距離
+    notes.forEach(n => { n.el = el('div', 'rnote' + (n.dur ? ' hold' : ''), lane, (n.dur ? `<i class="tail" style="width:calc(var(--u)*${Math.round(n.dur * PXS)})"></i>` : '') + `<span>${esc(n.ch)}</span>`); n.el.style.display = 'none'; n.tail = n.el.querySelector('.tail'); });
+    G3 = { sg, notes, beat, end, perfect: 0, good: 0, miss: 0, holdOK: 0, raf: 0, holding: null, lastBeat: -1, PXS };
+    lane.style.pointerEvents = 'auto'; startBtn.style.display = 'none'; say(`「${sg.name}」準備，3、2、1！`, 'happy', 2200); birdPose(true);
     (function frame() {
       if (!G3) return; const now = c.currentTime;
+      const bt = Math.floor((now - t0) / beat); if (bt >= 0 && bt !== G3.lastBeat) { G3.lastBeat = bt; hopBird(bt % 3); }
+      const hd = G3.holding;
+      if (hd) { const left = hd.t + hd.dur - now; if (left <= 0) holdDone(true); else { hd.el.style.left = pctX(HIT.x - 42); hd.tail.style.width = `calc(var(--u)*${Math.round(left * PXS)})`; } }
+      if (!G3) return;
       for (const n of G3.notes) {
         if (n.hit || n.miss) continue;
         const dt = n.t - now;
-        if (dt < -0.2) { n.miss = true; G3.miss++; n.el.classList.add('gone'); flash('Miss', 'miss'); continue; }
+        if (dt < -0.2) { n.miss = true; G3.miss++; n.el.classList.add('gone'); flash('Miss', 'miss'); setTimeout(() => n.el.remove(), 300); continue; }
         if (dt > travel) { n.el.style.display = 'none'; continue; }
         const x = HIT.x + (SPAWN_X - HIT.x) * (dt / travel);
         n.el.style.display = 'flex'; n.el.style.left = pctX(x - 42); n.el.style.top = pctY(HIT.y - 42);
       }
-      scoreEl.textContent = `Perfect ${G3.perfect}　Good ${G3.good}　Miss ${G3.miss}`;
+      scoreEl.textContent = `Perfect ${G3.perfect}　Good ${G3.good}　長按 ${G3.holdOK}　Miss ${G3.miss}`;
       if (now > G3.end) return finishSong();
       G3.raf = requestAnimationFrame(frame);
     })();
   }
   function flash(t, cls) { judge.textContent = t; judge.className = 'judge show ' + cls; clearTimeout(judge._t); judge._t = setTimeout(() => judge.className = 'judge', 400); }
+  function holdDone(ok) {
+    const h = G3 && G3.holding; if (!h) return; G3.holding = null; hitRing.classList.remove('holding'); h.el.classList.remove('held');
+    if (ok) { G3.holdOK++; flash('長按成功！', 'perfect'); const t = AC().currentTime; ping(1047, t, 0.14, 0.4); ping(1319, t + 0.06, 0.12, 0.4); BIRDS.forEach((b, i) => hopBird(i)); }
+    else { if (h.grade === 'perfect') G3.perfect--; else G3.good--; G3.miss++; flash('放太早了', 'miss'); }
+    h.el.classList.add('pop2'); setTimeout(() => h.el.remove(), 300);
+  }
   function tap() {
     if (!G3) return; const now = AC().currentTime;
     let best = null, bd = 9; for (const n of G3.notes) { if (n.hit || n.miss) continue; const d = Math.abs(n.t - now); if (d < bd) { bd = d; best = n; } }
     if (!best || bd > 0.25) return;
     best.hit = true; best.el.classList.add('pop2');
     const idx = G3.notes.indexOf(best);
-    if (bd < 0.09) { G3.perfect++; flash('Perfect!', 'perfect'); ping(PENTA[idx % PENTA.length], now, 0.16, 0.3); }
+    best.grade = bd < 0.09 ? 'perfect' : 'good';
+    if (best.grade === 'perfect') { G3.perfect++; flash('Perfect!', 'perfect'); ping(PENTA[idx % PENTA.length], now, 0.16, 0.3); }
     else { G3.good++; flash('Good', 'good'); ping(PENTA[idx % PENTA.length], now, 0.1, 0.25); }
-    setTimeout(() => best.el.remove(), 300);
+    hopBird(idx % 3);
+    if (best.dur) { best.el.classList.remove('pop2'); best.el.classList.add('held'); G3.holding = best; hitRing.classList.add('holding'); return; }
+    best.el.classList.add('pop2'); setTimeout(() => best.el.remove(), 300);
   }
-  lane.addEventListener('pointerdown', e => { if (G3) { e.preventDefault(); tap(); } });
-  function stopSong(silent) { if (!G3) return; cancelAnimationFrame(G3.raf); lane.innerHTML = ''; lane.style.pointerEvents = 'none'; G3 = null; startBtn.style.display = ''; scoreEl.textContent = ''; Music.duck(false); }
+  // 按下＝打擊；長按音符要一直按著，尾巴剩不到 0.15 秒時放開也算成功，太早放開算失誤
+  let downId = null;
+  lane.addEventListener('pointerdown', e => { if (!G3) return; e.preventDefault(); if (G3.holding) return; downId = e.pointerId; try { lane.setPointerCapture(e.pointerId); } catch (err) {} tap(); });
+  const release = e => { if (e.pointerId !== downId) return; downId = null; const h = G3 && G3.holding; if (h) holdDone(h.t + h.dur - AC().currentTime < 0.15); };
+  lane.addEventListener('pointerup', release); lane.addEventListener('pointercancel', release);
+  function stopSong(silent) { if (!G3) return; cancelAnimationFrame(G3.raf); lane.innerHTML = ''; lane.style.pointerEvents = 'none'; G3 = null; downId = null; hitRing.classList.remove('holding'); startBtn.style.display = ''; scoreEl.textContent = ''; birdPose(false); Music.duck(false); }
   function finishSong() {
     const g = G3, n = g.notes.length, hits = g.perfect + g.good; stopSong();
     const ratio = (g.perfect + g.good * 0.6) / n; const stars = ratio >= 0.9 ? 3 : ratio >= 0.65 ? 2 : 1;
-    const coins = g.perfect * 3 + g.good * 2, bonus = 20 * stars, xp = 10 + stars * 10;
+    const coins = g.perfect * 3 + g.good * 2 + g.holdOK * 2, bonus = 20 * stars, xp = 10 + stars * 10;
     addCoins(coins + bonus); addXP(xp); S.stars += stars; S.rounds++; const d = D(); d.rounds++; d.stars += stars;
     S.unitStars = S.unitStars || {}; S.unitStars['音樂|' + g.sg.id] = Math.max(S.unitStars['音樂|' + g.sg.id] || 0, stars); S.prog.songs++; S.prog.rounds['音樂'] = (S.prog.rounds['音樂'] || 0) + 1; save();
     lastRetry = () => { go('music'); startSong(g.sg); }; lastBack = 'music';
