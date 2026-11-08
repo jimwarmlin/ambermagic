@@ -7,7 +7,7 @@ const IMG = Object.assign({
   starA: 'img/star_a.webp', starB: 'img/star_b.webp', bearHappy: 'img/bear_happy.webp', bearWow: 'img/bear_wow.webp',
   bearThink: 'img/bear_think.webp', avatar: 'img/avatar.webp', bearBody: 'img/bear_body.webp', gate: 'img/gate.webp', frameWide: 'img/frame_wide.webp', frameCard: 'img/frame_card.webp', hallChinese: 'img/hall_chinese.webp', hallScience: 'img/hall_science.webp', hallMarket: 'img/hall_market.webp', boss: 'img/boss.webp', forest: 'img/forest.webp', mathMap: 'img/mathmap.webp', music: 'img/music_stage.webp', shopBg: 'img/shop_bg.webp', homeBg: 'img/home_bg.webp', badgeBg: 'img/badge_bg.webp', statusBg: 'img/status_bg.webp'
 }, window.INLINE_IMG || {});
-const AV = '11081700'; const vq = u => (u && !String(u).startsWith('data:')) ? u + '?v=' + AV : u;
+const AV = '11081800'; const vq = u => (u && !String(u).startsWith('data:')) ? u + '?v=' + AV : u;
 Object.keys(IMG).forEach(k => { IMG[k] = vq(IMG[k]); });
 // 道具小圖示（img/icon/）
 const icon = (n, cls = 'ic') => `<img class="${cls}" src="${vq('img/icon/' + n + '.webp')}" alt="">`;
@@ -71,7 +71,7 @@ const SFX = {
 const TRACKS = Object.assign({
   town: vq('audio/map.mp3'), cafe: vq('audio/cookingmath.mp3'), library: vq('audio/library.mp3'), greenhouse: vq('audio/greenhouse.mp3'),
   market: vq('audio/market.mp3'), birdie: vq('audio/birdie.mp3'), forest: vq('audio/forest.mp3'), dragon: vq('audio/dragon.mp3'),
-  home: vq('audio/home.mp3'), shop: vq('audio/shop.mp3')
+  home: vq('audio/home.mp3'), shop: vq('audio/shop.mp3'), login: vq('audio/login.mp3')
 }, window.INLINE_AUDIO || {});
 // 每個場景的背景音樂（兔兔小屋 home 開放後會用到）
 const SCENE_TRACK = { map: 'town', result: 'town', bakery: 'cafe', mathmap: 'cafe', hall_chinese: 'library', hall_science: 'greenhouse', hall_literacy: 'market',
@@ -381,20 +381,41 @@ const curEquip = () => (typeof S !== 'undefined' && S && S.equip) || {};
 const wearing = eq => !!(eq.hat || eq.cape || eq.wand);
 // 商店縮圖：有原畫的就顯示「自己的動物穿上它」
 function itemThumb(cat, id) { const an = (KID && KID.animal) || 'bunny'; return (DOLL_HAS[an] || []).includes(cat) ? dollURL(an, id) : shopURL(id); }
-function dollHTML(an, eq) {
+/* ---------- 紙娃娃：動物＋顏色＋頭飾／眼鏡／背飾 ---------- */
+// 顏色 0~3 對應 img/paper/{動物}_{n}.webp；配件疊在固定位置（%，以 420×520 畫布為準）
+const PAPER_POS = { bunny: { eyeY: 43.5, gw: 34, headY: 20.8 }, panda: { eyeY: 46, gw: 40, headY: 31.2 }, fawn: { eyeY: 50, gw: 40, headY: 30.2 }, shiba: { eyeY: 47, gw: 40, headY: 24.8 }, penguin: { eyeY: 44, gw: 40, headY: 31.4 } };
+const PAPER_OPTS = {
+  head: [['', '不戴'], ['crown', '小皇冠'], ['flower', '紫色花朵'], ['clip_star', '星星髮夾'], ['clip_heart', '愛心髮夾'], ['clip_flower', '小花髮夾'], ['clip_butterfly', '蝴蝶髮夾']],
+  face: [['', '不戴'], ['glasses', '圓眼鏡'], ['glasses_pink', '粉紅眼鏡'], ['glasses_green', '綠框眼鏡'], ['glasses_star', '星星眼鏡'], ['glasses_heart', '愛心眼鏡'], ['monocle', '單片眼鏡']],
+  back: [['', '不戴'], ['wings', '天使翅膀']]
+};
+const PAPER_COLORS = ['原色', '第二色', '第三色', '第四色'];
+const paperURL = (an, c) => vq(`img/paper/${an}_${c || 0}.webp`);
+const accURL = n => vq(`img/paper/acc_${n}.webp`);
+const kidLook = k => (k && k.look && typeof k.look === 'object') ? k.look : null;
+const kidImg = k => kidLook(k) ? paperURL(k.animal || 'bunny', kidLook(k).c) : animalImg(k && k.animal);
+function lookHTML(an, look, hideHead) {
+  const p = PAPER_POS[an] || PAPER_POS.bunny; let h = '';
+  if (look.head && !hideHead) h += `<img class="pa pa-head" src="${accURL(look.head)}" alt="" style="top:${p.headY}%">`;
+  if (look.face) h += `<img class="pa pa-face" src="${accURL(look.face)}" alt="" style="top:${p.eyeY}%;width:${p.gw}%;left:${50 - p.gw / 2}%">`;
+  return h;
+}
+function dollHTML(an, eq, look) {
   const D = DOLL[an] || DOLL.bunny, has = DOLL_HAS[an] || [];
   const hat = eq.hat && has.includes('hat') ? eq.hat : '', cape = eq.cape && has.includes('cape') ? eq.cape : '';
   const head = hat || cape || 'base', body = cape || hat || 'base';
-  let h = '';
-  if (head === body) h += `<img class="dl" src="${dollURL(an, head)}" alt="">`;
-  else h += `<img class="dl" src="${dollURL(an, body)}" alt="" style="clip-path:inset(${D.neck}% 0 0 0)"><img class="dl" src="${dollURL(an, head)}" alt="" style="clip-path:inset(0 0 ${(100 - D.neck).toFixed(1)}% 0)">`;
+  const src = f => f === 'base' && look ? paperURL(an, look.c) : dollURL(an, f);
+  let h = look && look.back ? `<img class="pa pa-back" src="${accURL(look.back)}" alt="">` : '';
+  if (head === body) h += `<img class="dl" src="${src(head)}" alt="">`;
+  else h += `<img class="dl" src="${src(body)}" alt="" style="clip-path:inset(${D.neck}% 0 0 0)"><img class="dl" src="${src(head)}" alt="" style="clip-path:inset(0 0 ${(100 - D.neck).toFixed(1)}% 0)">`;
+  if (look) h += lookHTML(an, look, !!hat);
   if (eq.cape && !cape) h += `<img class="dl-cape" src="${shopURL(eq.cape)}" alt="" style="top:${D.neck - 2}%">`; // 沒有原畫的動物：披風疊在身上
   if (eq.wand) h += `<img class="dl-wand" src="${shopURL(eq.wand)}" alt="">`;
   return h;
 }
 const SPRITES = new Set();
 function dressAll() { SPRITES.forEach(sp => { if (!sp.root.isConnected) { SPRITES.delete(sp); return; } sp.dress(); }); }
-function makeSprite(parent, names, eyeColor) {
+function makeSprite(parent, names, eyeColor, noLook) {
   const root = el('div', 'sprite', parent); const fr = {};
   names.forEach(n => { const d = el('div', 'fr', root); d.style.height = frH(n) + '%'; const im = el('img', '', d); im.src = frURL(n); im.alt = ''; im.draggable = false; fr[n] = d;
     if (n === 'turn_0') lids(d, [[30, 38.3, 11, 7.6], [58.2, 38.3, 11, 7.2]], eyeColor || '#fdf4ef'); });
@@ -405,11 +426,12 @@ function makeSprite(parent, names, eyeColor) {
   // 有穿裝備：改用換裝娃娃（原畫組合）；沒穿：用原本會動的角色
   const an = spriteAnimal(names); let dollEl = null, sig0 = null;
   function dress() {
-    const eq = curEquip(), on = wearing(eq), sig = on ? [an, eq.hat, eq.cape, eq.wand].join('|') : '';
+    const eq = curEquip(), look = noLook ? null : (typeof KID !== 'undefined' && KID && KID.animal === an ? kidLook(KID) : null);
+    const on = wearing(eq) || !!look, sig = on ? [an, eq.hat, eq.cape, eq.wand, JSON.stringify(look)].join('|') : '';
     if (sig === sig0) return; sig0 = sig; root.classList.toggle('doll', on);
     if (!on) { if (dollEl) dollEl.style.display = 'none'; return; }
     if (!dollEl) { dollEl = el('div', 'dollbox', root); const D = DOLL[an] || DOLL.bunny, k = 82 / (97.7 - D.bodyTop); dollEl.style.height = (k * 100).toFixed(1) + '%'; dollEl.style.bottom = (-2.3 * k).toFixed(1) + '%'; }
-    dollEl.style.display = ''; dollEl.innerHTML = dollHTML(an, eq);
+    dollEl.style.display = ''; dollEl.innerHTML = dollHTML(an, eq, look);
   }
   dress();
   const api = { root, show, play, clear, dress, get cur() { return curN; } }; SPRITES.add(api);
@@ -1552,16 +1574,23 @@ let resultUI = null;
 const STAR_POS = [['starA', 499, 173, 147, 139], ['starB', 648, 143, 154, 143], ['starA', 802, 168, 147, 139]];
 function buildResult() {
   const s = screen('result', 'result');
-  patch(s, 520, 330, 380, 470, 'a-float', '50% 100%', 'soft');
+  // 新背景沒有角色：中間放「自己的角色」
+  const hero = el('div', 'actor reshero', s); place(hero, 574, 322, 300, 420); const heroBody = el('div', 'body', hero); let heroSpr = null, heroA = null;
   [[300, 250], [1150, 250], [420, 600], [1050, 560], [700, 120], [180, 420], [1290, 430], [600, 700], [880, 700]].forEach(p => twinkle(s, ...p));
   petals(s, 7);
-  const rh = makeHUD(s, { face: [96, 63, 47], lv: [200, 73], xp: [238, 58, 292, 37], coin: [995, 50, 175, 62], bag: [1253, 71, 48], settings: [1374, 71, 48] }); rh.lv.classList.add('gold');
+  kitHUD(s, { home: () => go('map', true) }); // 新背景沒有畫 HUD，改用程式畫的 HUD
   const stars = STAR_POS.map(([k, x, y, w, h]) => { const im = el('img', 'rstar', s); im.src = IMG[k]; im.alt = ''; place(im, x, y, w, h); return im; });
   const banner = el('div', 'banner rbanner', s); place(banner, 724, 748); // 放在獎勵上方，不會被星星蓋住
   const gain = el('div', 'gain', s); place(gain, 724, 812);
   const again = btn(s, 'bigbtn pink', 257, 896, 428, 154, () => { if (lastRetry) lastRetry(); }, '再玩一次'); again.textContent = '再玩一次';
   const back = btn(s, 'bigbtn cream', 753, 896, 428, 154, () => { go(lastBack || 'bakery', true); }, '回餐廳'); back.textContent = '回餐廳';
-  resultUI = { stars, banner, gain, back };
+  function heroShow() {
+    const a = (KID && KID.animal) || 'bunny';
+    if (!heroSpr || heroA !== a) { heroA = a; heroBody.innerHTML = ''; heroSpr = makeSprite(heroBody, poseFrames(POSE(a))); }
+    const P = POSE(a); heroSpr.dress(); heroSpr.show(P.idle); setTimeout(() => heroSpr.play(P.cheer, P.cheerMs === 140 ? 140 : 900, 400, P.idle), 600);
+    hero.classList.remove('jump'); void hero.offsetWidth; hero.classList.add('jump');
+  }
+  resultUI = { stars, banner, gain, back, heroShow };
 }
 function finishRound() {
   const st0 = R.st; const r = R; R = null;
@@ -1574,7 +1603,7 @@ function showResult(res) {
     resultUI.banner.textContent = `一次答對 ${res.f} / ${res.n} 題`;
     resultUI.gain.innerHTML = `<span>${icon('coin', 'coin')}+${res.coins} 金幣</span><span>${icon('gem', 'coin')}+${res.xp} 經驗</span>`;
     resultUI.back.textContent = lastBack === 'bakery' ? '回餐廳' : lastBack === 'mathmap' ? '回單元地圖' : '回到館內';
-    resultUI.stars.forEach(st => st.classList.remove('on'));
+    resultUI.stars.forEach(st => st.classList.remove('on')); resultUI.heroShow();
     for (let i = 0; i < res.stars; i++) setTimeout(() => { resultUI.stars[i].classList.add('on'); SFX.star(); }, 500 + i * 450);
     setTimeout(() => { if (pendingLevels.length) showLevelUps(); }, 800 + res.stars * 450);
   }, 320);
@@ -1599,7 +1628,7 @@ function showQuests() {
   c.querySelectorAll('[data-q]').forEach(b => b.addEventListener('click', () => { const q = QUESTS.find(x => x.id === b.dataset.q); if (d.claimed.includes(q.id)) return; d.claimed.push(q.id); S.prog.quests++; addCoins(q.reward); SFX.coin(); refreshHUD(); b.textContent = '已領取'; b.disabled = true; floatText(`+${q.reward} 金幣`, 724, 420); toast(`拿到 ${q.reward} 枚金幣！`); }));
 }
 function showProfile() { if (KID && SAFE_SCR.includes(curName)) return openStatus(); showProfileModal(); }
-function showProfileModal() { const { c, m } = modal(`<img class="avatar" src="${animalImg(KID && KID.animal)}" alt=""><h2 class="center">${esc(KID ? KID.nick : '')}　Lv.${S.level} ${esc(title(S.level))}</h2><p class="center">${coinIc}${S.coins}　★ ${S.stars}　完成 ${S.rounds} 回合</p><p class="center muted">再拿 ${need(S.level) - S.xp} 點經驗就能升級！</p>${outfitRow()}<div class="actions"><button class="pill cream" data-a="bag">我的背包</button><button class="pill cream" data-a="sw">換別的小朋友</button></div>`); on(c, '[data-a=sw]', () => { closeModal(m); switchKid(); }); on(c, '[data-a=bag]', () => { closeModal(m); showBag(); }); }
+function showProfileModal() { const { c, m } = modal(`<img class="avatar" src="${kidImg(KID)}" alt=""><h2 class="center">${esc(KID ? KID.nick : '')}　Lv.${S.level} ${esc(title(S.level))}</h2><p class="center">${coinIc}${S.coins}　★ ${S.stars}　完成 ${S.rounds} 回合</p><p class="center muted">再拿 ${need(S.level) - S.xp} 點經驗就能升級！</p>${outfitRow()}<div class="actions"><button class="pill" data-a="look">換造型</button><button class="pill cream" data-a="bag">我的背包</button><button class="pill cream" data-a="sw">換別的小朋友</button></div>`); on(c, '[data-a=look]', () => { closeModal(m); editLook(); }); on(c, '[data-a=sw]', () => { closeModal(m); switchKid(); }); on(c, '[data-a=bag]', () => { closeModal(m); showBag(); }); }
 function showSettings() {
   const { c, m } = modal(`<h2>設定</h2><div class="setrow"><span>音效</span><div class="seg"><button data-s="1" class="${S.settings.sound ? 'on' : ''}">開</button><button data-s="0" class="${S.settings.sound ? '' : 'on'}">關</button></div></div><div class="setrow"><span>背景音樂</span><div class="seg"><button data-m="1" class="${S.settings.music ? 'on' : ''}">開</button><button data-m="0" class="${S.settings.music ? '' : 'on'}">關</button></div></div><div class="actions"><button class="pill purple" data-a="parent">家長專區</button></div>`);
   c.querySelectorAll('[data-m]').forEach(b => b.addEventListener('click', () => { S.settings.music = b.dataset.m === '1'; save(); c.querySelectorAll('[data-m]').forEach(x => x.classList.toggle('on', x === b)); SFX.tap(); Music.refresh(); }));
@@ -1679,7 +1708,9 @@ const LOCALBE = (() => {
   };
 })();
 const BE = FB || LOCALBE;
+const halfw = v => String(v || '').replace(/[\uFF10-\uFF19]/g, c => String.fromCharCode(c.charCodeAt(0) - 0xFF10 + 48)).replace(/[\s\u3000]/g, '');
 async function hashPin(salt, pin) {
+  pin = halfw(pin);
   const txt = salt + ':' + pin + ':ambermagic';
   try { const b = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(txt)); return Array.from(new Uint8Array(b)).map(x => x.toString(16).padStart(2, '0')).join(''); }
   catch (e) { let h = 0; for (const ch of txt) h = (h * 31 + ch.charCodeAt(0)) | 0; return 'h' + h; }
@@ -1714,6 +1745,7 @@ function hideGate() { gate.style.display = 'none'; if (gate._stop) { gate._stop(
 function busy(btnEl, on) { if (!btnEl) return; btnEl.disabled = on; if (on) { btnEl.dataset.t = btnEl.textContent; btnEl.textContent = '請稍候…'; } else if (btnEl.dataset.t) btnEl.textContent = btnEl.dataset.t; }
 
 function showAuth(mode = 'login', msg = '') {
+  Music.want('login');
   const inv = pendingInvite();
   const title2 = { login: '家長登入', register: '建立家庭帳號', reset: '忘記密碼' }[mode];
   showGate(``+
@@ -1765,11 +1797,11 @@ async function syncMemberKids() {
 }
 
 async function showKids() {
-  KID = null; Music.want('town');
+  KID = null; Music.want('login');
   showGate('<p>讀取中…</p>');
   let ks = [];
   try { ks = await BE.listKids(); } catch (e) { showGate(`<h3 class="ftitle">連線失敗</h3><p>${esc(errMsg(e))}</p><button class="pill" id="g-re">重試</button>`); gateCard.querySelector('#g-re').onclick = showKids; return; }
-  const cards = ks.map(k => `<button class="kidcard2" data-k="${k.id}" style="background-image:url('${IMG.frameCard}')"><img src="${animalImg(k.animal)}" alt=""><b>${esc(k.nick)}</b><small>Lv.${(k.state && k.state.level) || 1}</small></button>`).join('');
+  const cards = ks.map(k => `<button class="kidcard2" data-k="${k.id}" style="background-image:url('${IMG.frameCard}')"><img src="${kidImg(k)}" alt=""><b>${esc(k.nick)}</b><small>Lv.${(k.state && k.state.level) || 1}</small></button>`).join('');
   showGate(`<div class="gatesub">今天是誰要來冒險呢？</div><div class="kidrow">${cards}<button class="kidcard2 add" data-a="add" style="background-image:url('${IMG.frameCard}')"><span>＋</span><b>新增小朋友</b></button></div>` +
     `<div class="gatelinks"><button class="pill cream small" data-a="admin">家長後台</button>${BE.kind === 'cloud' ? '<button class="pill cream small" data-a="out">登出</button>' : ''}</div>`, true);
   gateCard.querySelectorAll('[data-k]').forEach(b => b.onclick = () => { SFX.tap(); pinPad(ks.find(k => k.id === b.dataset.k)); });
@@ -1780,7 +1812,7 @@ async function showKids() {
 }
 function pinPad(k, title2, onOk) {
   let v = '';
-  const { c, m } = modal(`<div class="center"><img class="avatar" src="${animalImg(k.animal)}" alt=""><h2>${esc(title2 || ('嗨，' + k.nick + '！'))}</h2><p>請輸入你的 4 位數密碼</p><div class="pindots"><i></i><i></i><i></i><i></i></div><p class="err"></p>` +
+  const { c, m } = modal(`<div class="center"><img class="avatar" src="${kidImg(k)}" alt=""><h2>${esc(title2 || ('嗨，' + k.nick + '！'))}</h2><p>請輸入你的 4 位數密碼</p><div class="pindots"><i></i><i></i><i></i><i></i></div><p class="err"></p>` +
     `<div class="pinpad">${[1, 2, 3, 4, 5, 6, 7, 8, 9, '', 0, 'del'].map(x => x === '' ? '<span></span>' : `<button class="key${x === 'del' ? ' del' : ''}" data-v="${x}">${x === 'del' ? ICON.del : x}</button>`).join('')}</div></div>`);
   const dots = c.querySelectorAll('.pindots i');
   c.querySelectorAll('[data-v]').forEach(b => b.onclick = async () => {
@@ -1802,11 +1834,12 @@ function adultGate(fn, note) {
   const pp = FAMILY && FAMILY.parentPin;
   if (!pp || !pp.hash) return setParentPin(fn, note);
   const { c, m } = modal(`<h2>家長密碼</h2>${note ? `<p class="muted">${esc(note)}</p>` : ''}<p>請輸入家長密碼${BE.kind === 'cloud' ? '<br><small class="muted">（也可以輸入家長帳號的登入密碼）</small>' : ''}</p>` +
-    `<div class="actions"><input class="gatein pw" type="password" maxlength="64" autocomplete="off" autocapitalize="off" autocorrect="off" aria-label="家長密碼"><button class="pill" data-a="go">確認</button></div>` +
+    `<div class="actions"><input class="gatein pw" type="password" inputmode="numeric" maxlength="64" autocomplete="off" autocapitalize="off" autocorrect="off" aria-label="家長密碼"><button class="linkbtn eye" data-a="eye" aria-label="顯示密碼">顯示</button><button class="pill" data-a="go">確認</button></div>` +
     `<p class="err center"></p><p class="center"><button class="linkbtn" data-a="forgot">忘記家長密碼？</button></p>`);
   const inp = c.querySelector('input'), er = c.querySelector('.err'); setTimeout(() => inp.focus(), 100);
+  on(c, '[data-a=eye]', ev => { const sh = inp.type === 'password'; inp.type = sh ? 'text' : 'password'; ev.target.textContent = sh ? '隱藏' : '顯示'; });
   const go2 = async () => {
-    const v = inp.value.trim(); if (!v) return;
+    const v = halfw(inp.value); if (!v) return;
     if (adultGate.lockUntil && Date.now() < adultGate.lockUntil) { er.textContent = '嘗試太多次，請等 30 秒再試'; return; }
     const pass = () => { adultGate.fails = 0; parentOkUntil = Date.now() + 5 * 60000; closeModal(m); fn(); };
     if (await hashPin(pp.salt, v) === pp.hash) return pass();
@@ -1827,7 +1860,7 @@ function setParentPin(fn, note, reset) {
     `<p class="err"></p><div class="actions"><button class="pill" data-a="ok">儲存並進入</button></div>`);
   const er = c.querySelector('.err');
   on(c, '[data-a=ok]', async ev => {
-    const p1 = c.querySelector('#pp-1').value.trim(), p2 = c.querySelector('#pp-2').value.trim();
+    const p1 = halfw(c.querySelector('#pp-1').value), p2 = halfw(c.querySelector('#pp-2').value);
     if (!/^\d{4,8}$/.test(p1)) return er.textContent = '家長密碼要是 4～8 個數字';
     if (p1 !== p2) return er.textContent = '兩次輸入的密碼不一樣';
     busy(ev.target, true);
@@ -1839,40 +1872,85 @@ function setParentPin(fn, note, reset) {
     } catch (e) { busy(ev.target, false); er.textContent = errMsg(e); }
   });
 }
-function kidForm(first) {
-  let animal = 'bunny';
+/* 紙娃娃編輯器：左邊選動物和顏色，右邊選頭飾、眼鏡、背飾，中間舞台即時預覽 */
+function paperDoll(init, onDone, onCancel, opts = {}) {
+  const st = Object.assign({ animal: 'bunny', c: 0, head: '', face: '', back: '' }, init || {});
+  showGate('', true, ' '); gate.classList.add('editor'); gate.style.setProperty('--src', `url("${vq('img/editor_bg.webp')}")`);
+  const L = gateLayer; L.innerHTML = '';
+  const done = () => { gate.classList.remove('editor'); gate.style.setProperty('--src', `url("${IMG.gate}")`); };
+  const ttl = el('div', 'pd-title', L, '我的角色'); place(ttl, 150, 214, 180, 44);
+  const animBox = el('div', 'pd-anims', L); place(animBox, 86, 352, 300, 214);
+  const colBtns = [[110, 647], [247, 647], [110, 762], [247, 762]].map(([x, y], i) => { const b = el('button', 'pd-col', L); place(b, x, y, 116, 116); b.onclick = () => { st.c = i; SFX.tap(); draw(); }; return b; });
+  const secs = { head: [952, 336, 412, 108], face: [952, 534, 412, 106], back: [952, 727, 412, 128] };
+  const secEl = {}; Object.entries(secs).forEach(([k, bx]) => { secEl[k] = el('div', 'pd-opts', L); place(secEl[k], ...bx); });
+  const lab = (t, x, y) => { const d = el('div', 'pd-lab', L, t); place(d, x, y, 170, 30); };
+  lab('頭飾', 950, 290); lab('眼鏡', 950, 488); lab('背飾', 950, 681);
+  const stageBox = el('div', 'pd-stage', L); place(stageBox, 487, 300, 340, 480);
+  const nameTip = el('div', 'pd-tip', L, '點選左右兩邊，打扮你的角色！'); place(nameTip, 447, 228, 420, 50);
+  const okBtn = el('button', 'pd-ok', L, opts.okText || '下一步'); place(okBtn, 480, 912, 380, 88);
+  if (onCancel) { const cx = el('button', 'pill cream small pd-cancel', L, '取消'); place(cx, 40, 34, 150, 62); cx.onclick = () => { SFX.tap(); done(); onCancel(); }; }
+  function draw() {
+    animBox.innerHTML = ANIMALS.filter(a => !opts.lockAnimal || a.key === st.animal).map(a => `<button class="pd-anim ${a.key === st.animal ? 'on' : ''}" data-an="${a.key}"><img src="${paperURL(a.key, a.key === st.animal ? st.c : 0)}" alt=""><span>${a.name}</span></button>`).join('');
+    animBox.querySelectorAll('[data-an]').forEach(b => b.onclick = () => { st.animal = b.dataset.an; SFX.ok(); draw(); });
+    colBtns.forEach((b, i) => { b.innerHTML = `<img src="${paperURL(st.animal, i)}" alt="">`; b.classList.toggle('on', i === st.c); b.setAttribute('aria-label', PAPER_COLORS[i]); });
+    Object.keys(secs).forEach(k => {
+      secEl[k].innerHTML = PAPER_OPTS[k].map(([v, nm]) => `<button class="pd-opt ${st[k] === v ? 'on' : ''}" data-v="${v}" aria-label="${nm}">${v ? `<img src="${accURL(v)}" alt="">` : '<span>不戴</span>'}</button>`).join('');
+      secEl[k].querySelectorAll('[data-v]').forEach(b => b.onclick = () => { st[k] = b.dataset.v; SFX.tap(); draw(); bounce(); });
+    });
+    const D = DOLL[st.animal] || DOLL.bunny, kk = 92 / (97.7 - D.bodyTop);
+    stageBox.innerHTML = `<div class="sprite doll"><div class="dollbox" style="height:${(kk * 100).toFixed(1)}%;bottom:${(-2.3 * kk).toFixed(1)}%">${dollHTML(st.animal, {}, { c: st.c, head: st.head, face: st.face, back: st.back })}</div></div>`;
+  }
+  function bounce() { stageBox.classList.remove('hop'); void stageBox.offsetWidth; stageBox.classList.add('hop'); }
+  stageBox.onclick = () => { SFX.ok(); bounce(); };
+  okBtn.onclick = () => { SFX.level(); done(); onDone({ animal: st.animal, look: { c: st.c, head: st.head, face: st.face, back: st.back } }); };
+  draw();
+}
+// 遊戲中重新打扮（不換動物，避免進度和裝備對不上）
+function editLook() {
+  if (!KID) return;
+  const lk = kidLook(KID) || {};
+  const back = curName;
+  paperDoll(Object.assign({ animal: KID.animal || 'bunny' }, lk), async r => {
+    KID.look = r.look; hideGate(); go(back || 'map'); dressAll(); toast('造型更新好了！');
+    try { await BE.updateKid(KID.id, { look: r.look }); } catch (e) {}
+  }, () => { hideGate(); go(back || 'map'); }, { lockAnimal: true, okText: '完成' });
+}
+function kidForm(first, made) {
+  if (!made) return paperDoll(null, r => kidForm(first, r), () => showKids());
+  let animal = made.animal;
   let oldSave = null; try { oldSave = JSON.parse(localStorage.getItem(KEY) || 'null'); } catch (e) {}
   const canMigrate = first && oldSave && !localStorage.getItem(KEY + '-migrated') && (oldSave.level > 1 || oldSave.coins > 0);
   const back = gate.style.display === 'block' ? null : 'game';
   showGate(`<div class="cstage"><div class="cglow"></div><div class="cspr"></div><div class="cname">新朋友</div></div>` +
     `<div class="framecard cform" style="background-image:url('${IMG.frameWide}')"><div class="frameinner">` +
     `<label class="fl">暱稱（不要用真實全名）<input id="k-nick" maxlength="8" placeholder="例如：小安"></label>` +
-    `<p class="fl">選一個主角</p><div class="animals2">${ANIMALS.map(a => `<button class="animal2 ${a.key === 'bunny' ? 'on' : ''}" data-an="${a.key}" style="background-image:url('${IMG.frameCard}')"><img src="${animalImg(a.key)}" alt=""><span>${a.name}</span></button>`).join('')}</div>` +
+    `<p class="fl">你設計的角色</p><div class="actions"><button class="pill cream small" data-a="redo">重新設計</button></div>` +
     `<label class="fl">4 位數密碼（讓小朋友記得）<input id="k-pin" inputmode="numeric" pattern="[0-9]*" maxlength="4"></label>` +
     (canMigrate ? `<label class="chk"><input type="checkbox" id="k-mig" checked> 把這台裝置原本的進度（Lv.${oldSave.level}、金幣 ${oldSave.coins}）給這位小朋友</label>` : '') +
     `<p class="err"></p><div class="actions"><button class="pill cream" data-a="cancel">取消</button><button class="pill" data-a="ok">建立角色</button></div></div></div>`, true, '建立你的角色');
   const c = gateCard, sprBox = c.querySelector('.cspr'), nameTag = c.querySelector('.cname');
   let pv = null, PP = null, loopT = null;
   function preview(k, celebrate) {
-    PP = POSE(k); sprBox.innerHTML = ''; pv = makeSprite(sprBox, poseFrames(PP)); pv.show(PP.idle);
-    if (celebrate) pv.play(PP.cheer, PP.cheerMs === 140 ? 140 : 1000, 300, PP.idle);
+    PP = POSE(k); const D = DOLL[k] || DOLL.bunny, kk = 82 / (97.7 - D.bodyTop);
+    sprBox.innerHTML = `<div class="sprite doll"><div class="dollbox" style="height:${(kk * 100).toFixed(1)}%;bottom:${(-2.3 * kk).toFixed(1)}%">${dollHTML(k, {}, made.look)}</div></div>`;
+    if (celebrate) { sprBox.classList.remove('hop'); void sprBox.offsetWidth; sprBox.classList.add('hop'); }
   }
-  function idleLoop() { clearTimeout(loopT); loopT = setTimeout(() => { if (pv) pv.play([PP.looks[rnd(PP.looks.length)]], 1300, 0, PP.idle); idleLoop(); }, rr(2600, 4200)); }
-  preview('bunny'); idleLoop();
+  function idleLoop() {}
+  preview(animal, true);
+  on(c, '[data-a=redo]', () => paperDoll(Object.assign({ animal }, made.look), r => kidForm(first, r), () => showKids()));
   gate._stop = () => clearTimeout(loopT);
   c.querySelector('#k-nick').addEventListener('input', e => { nameTag.textContent = e.target.value.trim() || '新朋友'; });
-  c.querySelectorAll('[data-an]').forEach(b => b.onclick = () => { animal = b.dataset.an; c.querySelectorAll('[data-an]').forEach(x => x.classList.toggle('on', x === b)); SFX.ok(); preview(animal, true); });
-  c.querySelector('.cstage').onclick = () => { if (pv) { pv.play([PP.giggle[rnd(PP.giggle.length)]], 1200, 0, PP.idle); SFX.tap(); } };
+  c.querySelector('.cstage').onclick = () => { SFX.tap(); preview(animal, true); };
   on(c, '[data-a=cancel]', () => { clearTimeout(loopT); showKids(); });
   on(c, '[data-a=ok]', async ev => {
-    const nick = c.querySelector('#k-nick').value.trim(), pin = c.querySelector('#k-pin').value.trim(), er = c.querySelector('.err');
+    const nick = c.querySelector('#k-nick').value.trim(), pin = halfw(c.querySelector('#k-pin').value), er = c.querySelector('.err');
     if (!nick) return er.textContent = '請輸入暱稱';
     if (!/^\d{4}$/.test(pin)) return er.textContent = '密碼要是 4 個數字';
     busy(ev.target, true);
     try {
       const salt = code(10), st = fresh();
       if (canMigrate && c.querySelector('#k-mig') && c.querySelector('#k-mig').checked) { Object.assign(st, oldSave, { v: 2 }); try { localStorage.setItem(KEY + '-migrated', '1'); } catch (e) {} }
-      await BE.addKid({ nick, animal, pin, pinSalt: salt, pinHash: await hashPin(salt, pin), state: st, updatedAt: Date.now() });
+      await BE.addKid({ nick, animal, look: made.look, pin, pinSalt: salt, pinHash: await hashPin(salt, pin), state: st, updatedAt: Date.now() });
       clearTimeout(loopT); toast(`歡迎 ${nick}！`); syncMemberKids(); SFX.level();
       showKids();
     } catch (e) { busy(ev.target, false); er.textContent = errMsg(e); }
@@ -1887,7 +1965,7 @@ async function enterKid(k) {
   let st = cloudSt;
   if (localSt && (!cloudSt || rankOf(localSt) > rankOf(cloudSt) || (rankOf(localSt) === rankOf(cloudSt) && (localSt.updatedAt || 0) > (cloudSt.updatedAt || 0)))) st = localSt;
   S = Object.assign(fresh(), st || {}); normalize(); D();
-  KID = { id: k.id, nick: k.nick, animal: k.animal || 'bunny' };
+  KID = { id: k.id, nick: k.nick, animal: k.animal || 'bunny', look: (doc && doc.look) || k.look || null };
   if (st === localSt && localSt) flushSave();
   hideGate();
   if (mapUI) mapUI.reset();

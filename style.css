@@ -739,3 +739,42 @@ input,textarea,select{-webkit-user-select:text;user-select:text;-webkit-touch-ca
 .rhit[data-g=bad].flash{box-shadow:0 0 calc(var(--u)*26) #f08a7a}
 @keyframes hitflash{0%{transform:scale(1.18)}100%{transform:scale(1)}}
 .gP{color:#e0a400}.gG{color:#3aa864}.gB{color:#e0604c}
+/* 紙娃娃配件 */
+.sprite .dollbox img.pa{position:absolute;height:auto}
+.sprite .dollbox img.pa-head{left:37%;width:26%;transform:translateY(-50%)}
+.sprite .dollbox img.pa-face{transform:translateY(-50%)}
+.sprite .dollbox img.pa-back{left:7.5%;width:85%;top:52%}
+/* 紙娃娃編輯器 */
+.gate.editor::before{display:none}
+.gate.editor{background-size:100% 100%}
+.pd-title,.pd-lab{display:flex;align-items:center;justify-content:center;color:#8a4f6b;font-size:calc(var(--u)*28);pointer-events:none}
+.pd-lab{font-size:calc(var(--u)*22);color:#8a5a3a}
+.pd-tip{display:flex;align-items:center;justify-content:center;font-size:calc(var(--u)*24);color:#fff;text-shadow:0 1px 3px rgba(80,40,110,.8);pointer-events:none}
+.pd-anims{display:grid;grid-template-columns:repeat(3,1fr);gap:calc(var(--u)*8)}
+.pd-anim{display:flex;flex-direction:column;align-items:center;justify-content:center;border-radius:calc(var(--u)*18);border:calc(var(--u)*3) solid transparent;background:rgba(255,255,255,.55);padding:calc(var(--u)*2);font:inherit;color:#7a4a35;font-size:calc(var(--u)*17)}
+.pd-anim img{height:calc(var(--u)*70);width:auto}
+.pd-anim.on{border-color:#f19ac0;background:#fff;box-shadow:0 0 calc(var(--u)*12) rgba(241,154,192,.8)}
+.pd-col{border-radius:50%;border:calc(var(--u)*4) solid transparent;background:rgba(255,255,255,.4);overflow:hidden;padding:0;display:flex;align-items:flex-start;justify-content:center}
+.pd-col img{width:125%;height:auto;margin-top:6%;max-width:none}
+.pd-col.on{border-color:#f19ac0;box-shadow:0 0 calc(var(--u)*14) rgba(241,154,192,.9)}
+.pd-opts{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:calc(var(--u)*6);padding:calc(var(--u)*6)}
+.pd-opt{width:calc(var(--u)*52);height:calc(var(--u)*52);border-radius:calc(var(--u)*14);border:calc(var(--u)*3) solid #ead6b8;background:#fffaf2;display:flex;align-items:center;justify-content:center;padding:calc(var(--u)*4);font:inherit;font-size:calc(var(--u)*15);color:#8a6a4a}
+.pd-opt img{max-width:100%;max-height:100%}
+.pd-opts.back .pd-opt,.pd-opt:only-child{width:calc(var(--u)*80)}
+.pd-opt.on{border-color:#f19ac0;background:#fff;box-shadow:0 0 calc(var(--u)*10) rgba(241,154,192,.9)}
+.pd-stage{position:absolute}
+.pd-stage.hop,.cspr.hop{animation:birdhop .4s ease-out}
+.pd-ok{border:none;border-radius:999px;background:transparent;font:inherit;font-size:calc(var(--u)*38);color:#fff;text-shadow:0 2px 3px rgba(150,40,90,.6)}
+.pd-ok:active{transform:scale(.96)}
+.pd-cancel{position:absolute}
+/* 結算畫面的自己的角色 */
+.actor.reshero{z-index:2}
+.actor.reshero.jump{animation:birdhop .6s ease-out 2}
+.cspr .sprite{position:absolute;inset:0}
+.gate.editor .gatesign{display:none}
+.pd-lab{justify-content:flex-start;width:auto!important;padding-left:calc(var(--u)*6)}
+/* 結算畫面新背景：按鈕與空星星改用程式畫 */
+#s-result .bigbtn{background:var(--ui-pill_pink) center/100% 100% no-repeat;border:none;color:#fff;font-size:calc(var(--u)*46);text-shadow:0 calc(var(--u)*2) calc(var(--u)*3) rgba(150,40,90,.6)}
+#s-result .bigbtn.cream{background-image:var(--ui-pill_cream);color:#6b3f1f;text-shadow:0 1px 0 rgba(255,255,255,.7)}
+#s-result .rstar{opacity:.35;filter:grayscale(1) brightness(1.25)}
+#s-result .rstar.on{filter:none}
