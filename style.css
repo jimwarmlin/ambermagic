@@ -713,3 +713,29 @@ input,textarea,select{-webkit-user-select:text;user-select:text;-webkit-touch-ca
 .rnote .tail{position:absolute;left:50%;top:22%;height:56%;border-radius:0 999px 999px 0;background:linear-gradient(180deg,#fff3a8,#ffc95c);border:calc(var(--u)*3) solid #fff;box-shadow:0 0 calc(var(--u)*12) rgba(255,200,90,.9);z-index:0}
 .rnote.hold{background:radial-gradient(circle at 35% 30%,#fff,#fff0a0 60%,#f6b73c)}
 .rnote.held{box-shadow:0 0 calc(var(--u)*30) rgba(255,190,60,1);transform:scale(1.08)}
+/* 題目文字放大：最小也要讓小朋友看得清楚 */
+.htext{font-size:calc(var(--u)*42)}
+.htext.mid{font-size:calc(var(--u)*36)}.htext.long{font-size:calc(var(--u)*31)}.htext.xl{font-size:calc(var(--u)*27)}
+.passage{font-size:calc(var(--u)*25);line-height:1.45}
+.qline{font-size:calc(var(--u)*29)}
+.counter .q{font-size:calc(var(--u)*48)}.counter .q.mid{font-size:calc(var(--u)*41)}.counter .q.long{font-size:calc(var(--u)*35)}
+.hopt{font-size:calc(var(--u)*36)}.hopt.long{font-size:calc(var(--u)*29)}
+.hpill{font-size:calc(var(--u)*31)}.hpill.long{font-size:calc(var(--u)*26)}
+.stagebtn.opt3{font-size:calc(var(--u)*42)}.stagebtn.opt3.long{font-size:calc(var(--u)*32)}
+.harea.matcher .tile{font-size:calc(var(--u)*27)}
+/* 聽題目的喇叭按鈕 */
+.ttsbtn{position:absolute;right:calc(var(--u)*-6);top:calc(var(--u)*-6);width:calc(var(--u)*72);height:calc(var(--u)*72);border-radius:50%;border:calc(var(--u)*4) solid #fff;background:linear-gradient(#fff4fb,#f6d6ff);box-shadow:0 calc(var(--u)*4) calc(var(--u)*8) rgba(120,60,140,.3);display:flex;align-items:center;justify-content:center;pointer-events:auto;z-index:6;padding:0}
+.ttsbtn svg{width:62%;height:62%}
+.ttsbtn:active{transform:scale(.92)}
+.hq .ttsbtn{pointer-events:auto}
+#s-bakery > .ttsbtn{right:auto;top:auto}
+/* 節奏判定 */
+.judge small{display:block;font-size:calc(var(--u)*24);margin-top:calc(var(--u)*2)}
+.judge{flex-direction:column}
+.judge.bad{color:#f08a7a}
+.rhit.flash{animation:hitflash .35s ease-out}
+.rhit[data-g=perfect].flash{box-shadow:0 0 calc(var(--u)*36) #ffd23f,inset 0 0 calc(var(--u)*18) #ffe680}
+.rhit[data-g=good].flash{box-shadow:0 0 calc(var(--u)*30) #8fe3a8,inset 0 0 calc(var(--u)*14) #c6f5d3}
+.rhit[data-g=bad].flash{box-shadow:0 0 calc(var(--u)*26) #f08a7a}
+@keyframes hitflash{0%{transform:scale(1.18)}100%{transform:scale(1)}}
+.gP{color:#e0a400}.gG{color:#3aa864}.gB{color:#e0604c}

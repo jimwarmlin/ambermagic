@@ -7,7 +7,7 @@ const IMG = Object.assign({
   starA: 'img/star_a.webp', starB: 'img/star_b.webp', bearHappy: 'img/bear_happy.webp', bearWow: 'img/bear_wow.webp',
   bearThink: 'img/bear_think.webp', avatar: 'img/avatar.webp', bearBody: 'img/bear_body.webp', gate: 'img/gate.webp', frameWide: 'img/frame_wide.webp', frameCard: 'img/frame_card.webp', hallChinese: 'img/hall_chinese.webp', hallScience: 'img/hall_science.webp', hallMarket: 'img/hall_market.webp', boss: 'img/boss.webp', forest: 'img/forest.webp', mathMap: 'img/mathmap.webp', music: 'img/music_stage.webp', shopBg: 'img/shop_bg.webp', homeBg: 'img/home_bg.webp', badgeBg: 'img/badge_bg.webp', statusBg: 'img/status_bg.webp'
 }, window.INLINE_IMG || {});
-const AV = '11081600'; const vq = u => (u && !String(u).startsWith('data:')) ? u + '?v=' + AV : u;
+const AV = '11081700'; const vq = u => (u && !String(u).startsWith('data:')) ? u + '?v=' + AV : u;
 Object.keys(IMG).forEach(k => { IMG[k] = vq(IMG[k]); });
 // 道具小圖示（img/icon/）
 const icon = (n, cls = 'ic') => `<img class="${cls}" src="${vq('img/icon/' + n + '.webp')}" alt="">`;
@@ -36,6 +36,7 @@ addEventListener('resize', fit); fit();
 function toStage(ev) { const r = stage.getBoundingClientRect(); return { x: (ev.clientX - r.left) / r.width * W, y: (ev.clientY - r.top) / r.height * H }; }
 
 const ICON = {
+  speaker: '<svg viewBox="0 0 24 24"><path d="M4 9h4l5-4v14l-5-4H4z" fill="#fff" stroke="#7d5aa8" stroke-width="1.8" stroke-linejoin="round"/><path d="M16 8.5a5 5 0 0 1 0 7M18.5 6a8.5 8.5 0 0 1 0 12" fill="none" stroke="#7d5aa8" stroke-width="2" stroke-linecap="round"/></svg>',
   lock: '<svg viewBox="0 0 24 24"><rect x="4" y="10" width="16" height="12" rx="3" fill="#c9a24a"/><path d="M8 10V7a4 4 0 0 1 8 0v3" fill="none" stroke="#a07a2a" stroke-width="2.6"/><circle cx="12" cy="16" r="1.8" fill="#7a5a1a"/></svg>',
   back: '<svg viewBox="0 0 24 24"><path d="M14.5 5 7.5 12l7 7" fill="none" stroke="#e1709e" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/></svg>',
   check: '<svg viewBox="0 0 24 24"><path d="M5 12.5 10 17 19 7" fill="none" stroke="#3ea561" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/></svg>',
@@ -482,7 +483,7 @@ function buildMap() {
     { name: '星語魔法館', box: [394, 63, 245, 300], label: [516, 392], open: true, go: 'hall_chinese', door: [560, 400] },
     { name: '月光藥草館', box: [987, 148, 359, 230], label: [1166, 392], open: true, go: 'hall_science', door: [1065, 420] },
     { name: '星光市集', box: [870, 700, 370, 270], label: [1040, 990], open: true, go: 'hall_literacy', door: [990, 760] },
-    { name: '家具店與裝備店', box: [1245, 725, 203, 250], label: [1330, 668], open: true, go: 'shop', door: [1010, 745] },
+    { name: '家具店與裝備店', box: [1245, 725, 203, 250], label: [1330, 935], open: true, go: 'shop', door: [1010, 745] },
     { name: '小鳥音樂亭', box: [257, 650, 234, 240], label: [374, 900], open: true, go: 'music', door: [330, 680] },
     { name: '兔兔小屋', box: [97, 331, 251, 240], label: [222, 588], open: true, go: 'home', door: [300, 590] },
     { name: '魔王試煉塔', box: [759, 17, 140, 148], label: [826, 168], open: true, go: 'boss', door: [845, 190] },
@@ -623,7 +624,8 @@ function buildBakery() {
   const starBadge = el('div', 'badge', s); place(starBadge, -300, -300);
   const starHot = rbtn(s, -300, -300, 10, () => toast(`你已經收集了 ${S.stars} 顆星星！`), '星星');
   const hint = kitBtn(s, 'ic_bulb', 1100, 560, 120, 96, () => {}, '提示'); hint.setAttribute('aria-label', '提示'); hint.style.display = 'none';
-  hint.addEventListener('click', () => { if (R && R.q) { R.hinted = true; bearSay(R.q.hint || '慢慢想，你一定可以的！', IMG.bearThink); } });
+  hint.addEventListener('click', () => { if (R && R.q) { R.hinted = true; const h = R.q.hint || '慢慢想，你一定可以的！'; bearSay(h, IMG.bearThink); readHint(h); } });
+  const bTts = ttsButton(s, () => { if (R && R.q) readQuestion(R.q.stem, R.q.type === '選擇問答' ? R.opts : []); }); place(bTts, 1000, 540, 76, 76); bTts.style.display = 'none';
   const back = el('button', 'backpill', s, ICON.back + '<span>回地圖</span>'); place(back, 22, 182); back.setAttribute('aria-label', '返回');
   back.addEventListener('click', () => { SFX.tap(); if (R) confirmQuit(); else go('map', true); });
   // board, counter, bubble
@@ -644,7 +646,7 @@ function buildBakery() {
   btn(s, 'hot rect', 1200, 730, 230, 320, () => { bunReact.giggle(); SFX.ok(); }, '兔兔');
 
   function menu() {
-    R = null; mapBtn.style.display = ''; hint.style.display = 'none'; starHot.style.display = ''; starBadge.style.display = '';
+    R = null; TTS.stop(); mapBtn.style.display = ''; hint.style.display = 'none'; bTts.style.display = 'none'; starHot.style.display = ''; starBadge.style.display = '';
     back.querySelector('span').textContent = '回地圖';
     keyrow.style.display = 'none'; tiles.style.display = 'none'; counter.className = 'counter'; counter.style.display = '';
     counter.textContent = greet[gi];
@@ -664,12 +666,12 @@ function buildBakery() {
     if (!BANK.length) { toast('題庫還沒準備好，請稍後再試。'); return; }
     R = { st, qs: buildRound(st), i: 0, first: 0, coins: 0, xp: 0, results: [] };
     lastRetry = () => { go('bakery'); startRound(st); }; lastBack = st.units || st.key ? 'mathmap' : 'bakery';
-    mapBtn.style.display = 'none'; hint.style.display = ''; starHot.style.display = 'none'; starBadge.style.display = 'none'; back.querySelector('span').textContent = '離開關卡';
+    mapBtn.style.display = 'none'; hint.style.display = ''; bTts.style.display = ''; starHot.style.display = 'none'; starBadge.style.display = 'none'; back.querySelector('span').textContent = '離開關卡';
     act(bear, 'cheer'); bearSay('好！我們開始吧！', IMG.bearHappy, 1800);
     showQ();
   }
   function showQ() {
-    const q = R.qs[R.i]; R.q = q; R.tries = 0; R.done = false; R.hinted = false; R.qStart = Date.now();
+    const q = R.qs[R.i]; R.q = q; R.tries = 0; R.done = false; R.hinted = false; R.qStart = Date.now(); TTS.stop();
     boardQuiz(); keyrow.style.display = 'none'; tiles.style.display = 'none'; tiles.innerHTML = ''; keyrow.innerHTML = '';
     counter.className = 'counter quiz'; counter.style.display = '';
     const len = q.stem.length;
@@ -791,6 +793,33 @@ function explainModal(q, right, sc, lastQ, onNext, face) {
   on(c, '[data-a=next]', () => { closeModal(m); Music.duck(false); onNext(); });
 }
 /* a reusable question renderer — one module per 題型. cfg: {s, panel, opts|null, area, say(text, kind)} */
+/* ---------- 語音朗讀：題目、選項、提示 ---------- */
+const TTS = (() => {
+  const ok = 'speechSynthesis' in window && 'SpeechSynthesisUtterance' in window;
+  let voice = null;
+  function pick() { if (!ok) return; const vs = speechSynthesis.getVoices(); voice = vs.find(v => /zh[-_]TW/i.test(v.lang)) || vs.find(v => /zh[-_](HK|Hant)/i.test(v.lang)) || vs.find(v => /^zh/i.test(v.lang)) || null; }
+  if (ok) { pick(); speechSynthesis.onvoiceschanged = pick; }
+  // 把算式符號換成念得出來的字
+  function clean(t) {
+    return String(t || '').replace(/[×xX＊*](?=\s*\d)/g, '乘以').replace(/×/g, '乘以').replace(/[÷]/g, '除以').replace(/[＝=]/g, '等於')
+      .replace(/＋|\+/g, '加').replace(/(\d)\s*[－−-]\s*(\d)/g, '$1減$2').replace(/[□＿_]{1,}|（\s*）|\(\s*\)/g, '空格').replace(/\|/g, '，').replace(/\n/g, '。');
+  }
+  function stop() { if (ok) { try { speechSynthesis.cancel(); } catch (e) {} } Music.duck(false); }
+  function say(text) {
+    if (!ok || !text) return false; stop();
+    const u = new SpeechSynthesisUtterance(clean(text)); u.lang = voice ? voice.lang : 'zh-TW'; if (voice) u.voice = voice; u.rate = 0.88; u.pitch = 1.05;
+    u.onend = u.onerror = () => Music.duck(false); Music.duck(true); speechSynthesis.speak(u); return true;
+  }
+  return { ok, say, stop };
+})();
+const NUMS = ['一', '二', '三', '四', '五', '六'];
+function readQuestion(stem, opts) {
+  const t = stem + (opts && opts.length ? '。選項有：' + opts.map((o, i) => `第${NUMS[i]}個，${o}`).join('。') + '。' : '');
+  if (!TTS.say(t)) toast('這台裝置不支援語音朗讀');
+}
+function readHint(h) { TTS.say('提示：' + h); }
+function ttsButton(parent, onTap) { const b = el('button', 'ttsbtn', parent, ICON.speaker); b.setAttribute('aria-label', '聽題目'); b.addEventListener('pointerdown', e => e.stopPropagation()); b.addEventListener('click', e => { e.stopPropagation(); SFX.tap(); onTap(); }); return b; }
+
 function makeQuiz(cfg) {
   const s = cfg.s;
   const qbox = el('div', 'hq', s); place(qbox, ...cfg.panel);
@@ -823,11 +852,13 @@ function makeQuiz(cfg) {
     if (q.type === '情境素養' && q.stem.includes('\n')) { const i = q.stem.lastIndexOf('\n'); stemHTML = `<span class="passage">${esc(q.stem.slice(0, i))}</span><b class="qline">${esc(q.stem.slice(i + 1))}</b>`; }
     const len = q.stem.length;
     qbox.innerHTML = `<div class="hmeta">${extraHead ? esc(extraHead) + '　' : ''}${esc(q.unit || '')}　<span class="stars">${starStr(q.diff)}</span></div><div class="htext ${len > 60 ? 'xl' : len > 30 ? 'long' : len > 16 ? 'mid' : ''}">${stemHTML}</div>`;
+    TTS.stop(); cur.readOpts = [];
+    ttsButton(qbox, () => readQuestion(q.stem, cur.readOpts));
     const finish = (right, isMatch) => { cur.done = true; onDone(q, right, cur.tries, isMatch); };
     const wrongOnce = () => { cur.tries++; SFX.bad(); cfg.say('再想一想～可以按提示喔！', 'oops'); };
     const lastTry = () => cur.tries >= 1;
     if (kind === '選擇問答') {
-      const opts = shuffle(qq.options).slice(0, 4);
+      const opts = shuffle(qq.options).slice(0, 4); cur.readOpts = opts;
       const useBaked = optBtns.length && opts.length <= optBtns.length;
       let btns;
       if (useBaked) { btns = optBtns.slice(0, opts.length); optBtns.forEach((b, i) => { b.style.display = ''; b.classList.add('kp' + i); if (i >= opts.length) b.className = 'hopt off'; }); }
@@ -948,7 +979,7 @@ function buildHall(key) {
   if (H.play) { kitBtn(s, 'pill_pink', ...H.play, () => { if (!R2) startHall(null); }, '綜合練習', '綜合練習'); }
   if (H.hint) { kitBtn(s, 'ic_bulb', ...H.hint, giveHint, '提示'); lbl(s, H.hint[0] - 20, H.hint[1] + H.hint[3] - 4, H.hint[2] + 40, '提示'); }
   let R2 = null;
-  function giveHint() { if (R2 && Q.q) say(Q.q.hint || '慢慢想，你一定可以的！', 'hi', 6000); else say('先選一個單元開始吧！', 'hi'); }
+  function giveHint() { if (R2 && Q.q) { const h = Q.q.hint || '慢慢想，你一定可以的！'; say(h, 'hi', 6000); readHint(h); } else say('先選一個單元開始吧！', 'hi'); }
   function leave() { R2 = null; Q.clear(); go('map', true); }
   function confirmLeave() { const { c, m } = modal(`<h2>要離開嗎？</h2><p>這一回合還沒完成，離開不會拿到星星喔。</p><div class="actions"><button class="pill" data-a="stay">繼續</button><button class="pill cream" data-a="go">離開</button></div>`, { close: false }); on(c, '[data-a=stay]', () => closeModal(m)); on(c, '[data-a=go]', () => { closeModal(m); R2 = null; menu(); }); }
   function menu() { R2 = null; Q.clear(); board.style.display = '';  board.innerHTML = `<div class="hgreet"><b>${esc(H.name)}</b><p>${esc(H.greet)}</p><p class="small">按「選擇單元」開始，每個單元 8 題。</p></div>`; mainLbl.textContent = '選擇單元'; }
@@ -1082,7 +1113,7 @@ function buildForest() {
   for (let i = 0; i < 18; i++) { const m = el('div', 'mote', s); place(m, rr(100, 1300), rr(200, 800)); m.style.animationDuration = rr(7, 12).toFixed(1) + 's'; m.style.animationDelay = (-rr(0, 10)).toFixed(1) + 's'; }
   kitBtn(s, 'ic_book', 120, 890, 170, 138, list, '錯題本'); lbl(s, 100, 1024, 210, '錯題本');
   kitBtn(s, 'pill_pink', 470, 900, 500, 118, () => { if (!F2) start(); }, '開始複習', '開始複習');
-  kitBtn(s, 'ic_bulb', 1150, 890, 170, 138, () => { if (F2 && Q.q) say(Q.q.hint || '慢慢想～', 'hi', 6000); else say('有迷路的小精靈嗎？按「開始複習」看看！', 'hi'); }, '提示'); lbl(s, 1130, 1024, 210, '提示');
+  kitBtn(s, 'ic_bulb', 1150, 890, 170, 138, () => { if (F2 && Q.q) { const h = Q.q.hint || '慢慢想～'; say(h, 'hi', 6000); readHint(h); } else say('有迷路的小精靈嗎？按「開始複習」看看！', 'hi'); }, '提示'); lbl(s, 1130, 1024, 210, '提示');
   const card = el('div', 'framecard forestcard', s); place(card, 250, 150, 950, 700); card.style.backgroundImage = `url("${IMG.frameWide}")`; card.style.display = 'none';
   const Q = makeQuiz({ s, panel: [350, 335, 750, 150], opts: null, area: [340, 492, 770, 250], say });
   let F2 = null;
@@ -1146,7 +1177,7 @@ function buildMusic() {
   const HIT = { x: 135, y: 877 }, SPAWN_X = 1390, LEAD = 4;
   let G3 = null;
   function pickSong() {
-    const { c, m } = modal(`<h2>小鳥音樂亭・選一首歌</h2><p class="muted">音符跑到左邊的圓圈時，點一下螢幕！<b>有長尾巴的音符要按住不放</b>，等尾巴跑完再放開。跟著節奏唸出來會更準喔。</p><div class="uchips">${SONGS2.map(sg => `<button class="uchip" data-s="${sg.id}"><b>${sg.name}</b><small>${(S.unitStars || {})['音樂|' + sg.id] ? starStr(S.unitStars['音樂|' + sg.id]) : '尚未挑戰'}</small></button>`).join('')}</div>`, { wide: true });
+    const { c, m } = modal(`<h2>小鳥音樂亭・選一首歌</h2><p class="muted">音符跑到左邊的圓圈時，點一下螢幕！越準越好：<b class="gP">Perfect</b>＞<b class="gG">Good</b>＞<b class="gB">Bad</b>，沒點到是 Miss。<b>有長尾巴的音符要按住不放</b>，等尾巴跑完再放開。跟著節奏唸出來會更準喔。</p><div class="uchips">${SONGS2.map(sg => `<button class="uchip" data-s="${sg.id}"><b>${sg.name}</b><small>${(S.unitStars || {})['音樂|' + sg.id] ? starStr(S.unitStars['音樂|' + sg.id]) : '尚未挑戰'}</small></button>`).join('')}</div>`, { wide: true });
     c.querySelectorAll('[data-s]').forEach(b => b.onclick = () => { closeModal(m); startSong(SONGS2.find(x => x.id === b.dataset.s)); });
   }
   const PENTA = [523, 587, 659, 784, 880, 1047, 1175, 1319];
@@ -1162,7 +1193,7 @@ function buildMusic() {
     for (let k = 0; k < b; k++) ping(110, t0 + k * beat, k % 4 === 0 ? 0.18 : 0.09, 0.12, 'sine');
     const travel = 2.6, PXS = (SPAWN_X - HIT.x) / travel; // 音符每秒移動的距離
     notes.forEach(n => { n.el = el('div', 'rnote' + (n.dur ? ' hold' : ''), lane, (n.dur ? `<i class="tail" style="width:calc(var(--u)*${Math.round(n.dur * PXS)})"></i>` : '') + `<span>${esc(n.ch)}</span>`); n.el.style.display = 'none'; n.tail = n.el.querySelector('.tail'); });
-    G3 = { sg, notes, beat, end, perfect: 0, good: 0, miss: 0, holdOK: 0, raf: 0, holding: null, lastBeat: -1, PXS };
+    G3 = { sg, notes, beat, end, perfect: 0, good: 0, bad: 0, miss: 0, holdOK: 0, raf: 0, holding: null, lastBeat: -1, PXS };
     lane.style.pointerEvents = 'auto'; startBtn.style.display = 'none'; say(`「${sg.name}」準備，3、2、1！`, 'happy', 2200); birdPose(true);
     (function frame() {
       if (!G3) return; const now = c.currentTime;
@@ -1173,32 +1204,37 @@ function buildMusic() {
       for (const n of G3.notes) {
         if (n.hit || n.miss) continue;
         const dt = n.t - now;
-        if (dt < -0.2) { n.miss = true; G3.miss++; n.el.classList.add('gone'); flash('Miss', 'miss'); setTimeout(() => n.el.remove(), 300); continue; }
+        if (dt < -WIN.bad) { n.miss = true; G3.miss++; n.el.classList.add('gone'); flash('Miss', 'miss'); setTimeout(() => n.el.remove(), 300); continue; }
         if (dt > travel) { n.el.style.display = 'none'; continue; }
         const x = HIT.x + (SPAWN_X - HIT.x) * (dt / travel);
         n.el.style.display = 'flex'; n.el.style.left = pctX(x - 42); n.el.style.top = pctY(HIT.y - 42);
       }
-      scoreEl.textContent = `Perfect ${G3.perfect}　Good ${G3.good}　長按 ${G3.holdOK}　Miss ${G3.miss}`;
+      scoreEl.textContent = `Perfect ${G3.perfect}　Good ${G3.good}　Bad ${G3.bad}　Miss ${G3.miss}　長按 ${G3.holdOK}`;
       if (now > G3.end) return finishSong();
       G3.raf = requestAnimationFrame(frame);
     })();
   }
-  function flash(t, cls) { judge.textContent = t; judge.className = 'judge show ' + cls; clearTimeout(judge._t); judge._t = setTimeout(() => judge.className = 'judge', 400); }
+  // 判定區間（秒）：差距越小越準
+  const WIN = { perfect: 0.06, good: 0.13, bad: 0.22 };
+  function flash(t, cls, sub) { judge.innerHTML = esc(t) + (sub ? `<small>${esc(sub)}</small>` : ''); judge.className = 'judge show ' + cls; hitRing.dataset.g = cls; hitRing.classList.remove('flash'); void hitRing.offsetWidth; hitRing.classList.add('flash'); clearTimeout(judge._t); judge._t = setTimeout(() => judge.className = 'judge', 450); }
   function holdDone(ok) {
     const h = G3 && G3.holding; if (!h) return; G3.holding = null; hitRing.classList.remove('holding'); h.el.classList.remove('held');
     if (ok) { G3.holdOK++; flash('長按成功！', 'perfect'); const t = AC().currentTime; ping(1047, t, 0.14, 0.4); ping(1319, t + 0.06, 0.12, 0.4); BIRDS.forEach((b, i) => hopBird(i)); }
-    else { if (h.grade === 'perfect') G3.perfect--; else G3.good--; G3.miss++; flash('放太早了', 'miss'); }
+    else { G3[h.grade]--; G3.miss++; flash('放太早了', 'miss'); }
     h.el.classList.add('pop2'); setTimeout(() => h.el.remove(), 300);
   }
   function tap() {
     if (!G3) return; const now = AC().currentTime;
     let best = null, bd = 9; for (const n of G3.notes) { if (n.hit || n.miss) continue; const d = Math.abs(n.t - now); if (d < bd) { bd = d; best = n; } }
-    if (!best || bd > 0.25) return;
+    if (!best || bd > WIN.bad) return;
+    const early = now < best.t;
     best.hit = true; best.el.classList.add('pop2');
     const idx = G3.notes.indexOf(best);
-    best.grade = bd < 0.09 ? 'perfect' : 'good';
+    best.grade = bd <= WIN.perfect ? 'perfect' : bd <= WIN.good ? 'good' : 'bad';
+    const side = early ? '快了一點' : '慢了一點';
     if (best.grade === 'perfect') { G3.perfect++; flash('Perfect!', 'perfect'); ping(PENTA[idx % PENTA.length], now, 0.16, 0.3); }
-    else { G3.good++; flash('Good', 'good'); ping(PENTA[idx % PENTA.length], now, 0.1, 0.25); }
+    else if (best.grade === 'good') { G3.good++; flash('Good', 'good', side); ping(PENTA[idx % PENTA.length], now, 0.1, 0.25); }
+    else { G3.bad++; flash('Bad', 'bad', side); ping(PENTA[idx % PENTA.length] / 2, now, 0.07, 0.18, 'sine'); }
     hopBird(idx % 3);
     if (best.dur) { best.el.classList.remove('pop2'); best.el.classList.add('held'); G3.holding = best; hitRing.classList.add('holding'); return; }
     best.el.classList.add('pop2'); setTimeout(() => best.el.remove(), 300);
@@ -1210,8 +1246,8 @@ function buildMusic() {
   lane.addEventListener('pointerup', release); lane.addEventListener('pointercancel', release);
   function stopSong(silent) { if (!G3) return; cancelAnimationFrame(G3.raf); lane.innerHTML = ''; lane.style.pointerEvents = 'none'; G3 = null; downId = null; hitRing.classList.remove('holding'); startBtn.style.display = ''; scoreEl.textContent = ''; birdPose(false); Music.duck(false); }
   function finishSong() {
-    const g = G3, n = g.notes.length, hits = g.perfect + g.good; stopSong();
-    const ratio = (g.perfect + g.good * 0.6) / n; const stars = ratio >= 0.9 ? 3 : ratio >= 0.65 ? 2 : 1;
+    const g = G3, n = g.notes.length, hits = g.perfect + g.good + g.bad; stopSong();
+    const ratio = (g.perfect + g.good * 0.6 + g.bad * 0.2) / n; const stars = ratio >= 0.9 ? 3 : ratio >= 0.65 ? 2 : 1;
     const coins = g.perfect * 3 + g.good * 2 + g.holdOK * 2, bonus = 20 * stars, xp = 10 + stars * 10;
     addCoins(coins + bonus); addXP(xp); S.stars += stars; S.rounds++; const d = D(); d.rounds++; d.stars += stars;
     S.unitStars = S.unitStars || {}; S.unitStars['音樂|' + g.sg.id] = Math.max(S.unitStars['音樂|' + g.sg.id] || 0, stars); S.prog.songs++; S.prog.rounds['音樂'] = (S.prog.rounds['音樂'] || 0) + 1; save();
