@@ -778,3 +778,20 @@ input,textarea,select{-webkit-user-select:text;user-select:text;-webkit-touch-ca
 #s-result .bigbtn.cream{background-image:var(--ui-pill_cream);color:#6b3f1f;text-shadow:0 1px 0 rgba(255,255,255,.7)}
 #s-result .rstar{opacity:.35;filter:grayscale(1) brightness(1.25)}
 #s-result .rstar.on{filter:none}
+/* 結算畫面：角色開心圖 */
+.actor.reshero img.happyimg{position:absolute;left:0;top:0;width:100%;height:100%;object-fit:contain;object-position:50% 100%}
+/* 音樂亭：判定範圍圈圈（音符中心落在哪一圈就是哪個判定） */
+.rzone{border-radius:50%;pointer-events:none;z-index:4;border:calc(var(--u)*3) dashed}
+.rzone b{position:absolute;right:calc(var(--u)*-2);top:50%;transform:translate(100%,-50%);font-weight:400;font-size:calc(var(--u)*16);white-space:nowrap;padding:0 calc(var(--u)*4);border-radius:999px;color:#fff}
+.rzone.perfect{border-color:rgba(255,200,40,.95);background:rgba(255,220,90,.22)}
+.rzone.perfect b{background:rgba(224,164,0,.85)}
+.rzone.good{border-color:rgba(70,190,110,.9);background:rgba(140,230,170,.14)}
+.rzone.good b{background:rgba(58,168,100,.85)}
+.rzone.bad{border-color:rgba(240,120,100,.85);background:rgba(250,170,150,.08)}
+.rzone.bad b{background:rgba(224,96,76,.85)}
+.gatein.mail{width:calc(var(--u)*520);font-size:calc(var(--u)*32);text-align:left}
+.rzone{border-width:calc(var(--u)*4)}
+.rzone b{right:auto;left:50%;top:0;transform:translate(-50%,-55%);font-size:calc(var(--u)*17);box-shadow:0 1px 3px rgba(0,0,0,.2)}
+.rzone.perfect{background:rgba(255,220,90,.3)}
+.rzone.good{background:rgba(140,230,170,.2)}
+.rzone.bad{background:rgba(250,170,150,.14)}

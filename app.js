@@ -7,7 +7,7 @@ const IMG = Object.assign({
   starA: 'img/star_a.webp', starB: 'img/star_b.webp', bearHappy: 'img/bear_happy.webp', bearWow: 'img/bear_wow.webp',
   bearThink: 'img/bear_think.webp', avatar: 'img/avatar.webp', bearBody: 'img/bear_body.webp', gate: 'img/gate.webp', frameWide: 'img/frame_wide.webp', frameCard: 'img/frame_card.webp', hallChinese: 'img/hall_chinese.webp', hallScience: 'img/hall_science.webp', hallMarket: 'img/hall_market.webp', boss: 'img/boss.webp', forest: 'img/forest.webp', mathMap: 'img/mathmap.webp', music: 'img/music_stage.webp', shopBg: 'img/shop_bg.webp', homeBg: 'img/home_bg.webp', badgeBg: 'img/badge_bg.webp', statusBg: 'img/status_bg.webp'
 }, window.INLINE_IMG || {});
-const AV = '11081800'; const vq = u => (u && !String(u).startsWith('data:')) ? u + '?v=' + AV : u;
+const AV = '11081900'; const vq = u => (u && !String(u).startsWith('data:')) ? u + '?v=' + AV : u;
 Object.keys(IMG).forEach(k => { IMG[k] = vq(IMG[k]); });
 // 道具小圖示（img/icon/）
 const icon = (n, cls = 'ic') => `<img class="${cls}" src="${vq('img/icon/' + n + '.webp')}" alt="">`;
@@ -1238,6 +1238,9 @@ function buildMusic() {
   }
   // 判定區間（秒）：差距越小越準
   const WIN = { perfect: 0.06, good: 0.13, bad: 0.22 };
+  // 依判定時間換算成距離：音符中心落在哪個圈裡，就是那個判定（音符半徑 42）
+  { const PX = (SPAWN_X - HIT.x) / 2.6;
+    [['bad', 'Bad'], ['good', 'Good'], ['perfect', 'Perfect']].forEach(([k, t]) => { const r = Math.round(42 + WIN[k] * PX); const z = el('div', 'rzone ' + k, s, `<b>${t}</b>`); place(z, HIT.x - r, HIT.y - r, r * 2, r * 2); }); }
   function flash(t, cls, sub) { judge.innerHTML = esc(t) + (sub ? `<small>${esc(sub)}</small>` : ''); judge.className = 'judge show ' + cls; hitRing.dataset.g = cls; hitRing.classList.remove('flash'); void hitRing.offsetWidth; hitRing.classList.add('flash'); clearTimeout(judge._t); judge._t = setTimeout(() => judge.className = 'judge', 450); }
   function holdDone(ok) {
     const h = G3 && G3.holding; if (!h) return; G3.holding = null; hitRing.classList.remove('holding'); h.el.classList.remove('held');
@@ -1584,10 +1587,15 @@ function buildResult() {
   const gain = el('div', 'gain', s); place(gain, 724, 812);
   const again = btn(s, 'bigbtn pink', 257, 896, 428, 154, () => { if (lastRetry) lastRetry(); }, '再玩一次'); again.textContent = '再玩一次';
   const back = btn(s, 'bigbtn cream', 753, 896, 428, 154, () => { go(lastBack || 'bakery', true); }, '回餐廳'); back.textContent = '回餐廳';
+  const HAPPY = ['bunny', 'shiba', 'panda', 'penguin']; // 有開心表情原畫的角色（小鹿還沒有，先用自己的角色）
   function heroShow() {
     const a = (KID && KID.animal) || 'bunny';
-    if (!heroSpr || heroA !== a) { heroA = a; heroBody.innerHTML = ''; heroSpr = makeSprite(heroBody, poseFrames(POSE(a))); }
-    const P = POSE(a); heroSpr.dress(); heroSpr.show(P.idle); setTimeout(() => heroSpr.play(P.cheer, P.cheerMs === 140 ? 140 : 900, 400, P.idle), 600);
+    if (HAPPY.includes(a)) {
+      if (heroA !== 'happy-' + a) { heroA = 'happy-' + a; heroSpr = null; heroBody.innerHTML = `<img class="happyimg" src="${vq('img/happy/' + a + '.webp')}" alt="">`; }
+    } else {
+      if (!heroSpr || heroA !== a) { heroA = a; heroBody.innerHTML = ''; heroSpr = makeSprite(heroBody, poseFrames(POSE(a))); }
+      const P = POSE(a); heroSpr.dress(); heroSpr.show(P.idle); setTimeout(() => heroSpr.play(P.cheer, P.cheerMs === 140 ? 140 : 900, 400, P.idle), 600);
+    }
     hero.classList.remove('jump'); void hero.offsetWidth; hero.classList.add('jump');
   }
   resultUI = { stars, banner, gain, back, heroShow };
@@ -1831,25 +1839,18 @@ function pinPad(k, title2, onOk) {
 let parentOkUntil = 0;
 function adultGate(fn, note) {
   if (Date.now() < parentOkUntil) return fn();
-  const pp = FAMILY && FAMILY.parentPin;
-  if (!pp || !pp.hash) return setParentPin(fn, note);
-  const { c, m } = modal(`<h2>家長密碼</h2>${note ? `<p class="muted">${esc(note)}</p>` : ''}<p>請輸入家長密碼${BE.kind === 'cloud' ? '<br><small class="muted">（也可以輸入家長帳號的登入密碼）</small>' : ''}</p>` +
-    `<div class="actions"><input class="gatein pw" type="password" inputmode="numeric" maxlength="64" autocomplete="off" autocapitalize="off" autocorrect="off" aria-label="家長密碼"><button class="linkbtn eye" data-a="eye" aria-label="顯示密碼">顯示</button><button class="pill" data-a="go">確認</button></div>` +
-    `<p class="err center"></p><p class="center"><button class="linkbtn" data-a="forgot">忘記家長密碼？</button></p>`);
+  const mail = (USER && USER.email && USER.email.includes('@')) ? USER.email.toLowerCase() : '';
+  const { c, m } = modal(`<h2>家長專區</h2>${note ? `<p class="muted">${esc(note)}</p>` : ''}<p>請輸入家長的 Email</p>` +
+    `<div class="actions"><input class="gatein mail" type="email" inputmode="email" autocomplete="email" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="name@example.com" aria-label="家長 Email"><button class="pill" data-a="go">進入</button></div>` +
+    `<p class="err center"></p>`);
   const inp = c.querySelector('input'), er = c.querySelector('.err'); setTimeout(() => inp.focus(), 100);
-  on(c, '[data-a=eye]', ev => { const sh = inp.type === 'password'; inp.type = sh ? 'text' : 'password'; ev.target.textContent = sh ? '隱藏' : '顯示'; });
-  const go2 = async () => {
-    const v = halfw(inp.value); if (!v) return;
-    if (adultGate.lockUntil && Date.now() < adultGate.lockUntil) { er.textContent = '嘗試太多次，請等 30 秒再試'; return; }
-    const pass = () => { adultGate.fails = 0; parentOkUntil = Date.now() + 5 * 60000; closeModal(m); fn(); };
-    if (await hashPin(pp.salt, v) === pp.hash) return pass();
-    // 家長常把「帳號登入密碼」打在這裡：雲端版也接受帳號登入密碼
-    if (BE.kind === 'cloud' && v.length >= 6) { er.textContent = '確認中…'; try { await BE.reauth(inp.value); return pass(); } catch (e) { er.textContent = ''; } }
-    inp.value = ''; SFX.bad(); adultGate.fails = (adultGate.fails || 0) + 1;
-    if (adultGate.fails >= 5) { adultGate.fails = 0; adultGate.lockUntil = Date.now() + 30000; er.textContent = '嘗試太多次，請等 30 秒再試'; } else er.textContent = '密碼不正確';
+  const go2 = () => {
+    const v = inp.value.replace(/[\s\u3000]/g, '').replace(/＠/g, '@').toLowerCase(); if (!v) return;
+    // 雲端版：要和登入的家長帳號 Email 一樣；這台裝置模式：只要是 Email 格式
+    if (mail ? v === mail : /^[^@]+@[^@]+\.[^@]+$/.test(v)) { parentOkUntil = Date.now() + 5 * 60000; closeModal(m); fn(); return; }
+    SFX.bad(); er.textContent = mail ? '跟登入的家長 Email 不一樣喔' : '請輸入正確的 Email';
   };
   on(c, '[data-a=go]', go2); inp.addEventListener('keydown', e => { if (e.key === 'Enter') go2(); });
-  on(c, '[data-a=forgot]', () => { closeModal(m); setParentPin(fn, '輸入家長帳號的登入密碼，就能重新設定家長密碼。', true); });
 }
 function setParentPin(fn, note, reset) {
   const needAcct = BE.kind === 'cloud';
@@ -2105,9 +2106,7 @@ async function adminPanel(tab, kidId) {
     ab.innerHTML = `<div class="setrow"><span>帳號</span><span>${esc(USER ? USER.email : '')}</span></div>` +
       `<div class="setrow"><span>題庫來源</span><span>${esc(BANK_SRC)}，數學 ${BANK.length} 題</span></div>` +
       `<div class="setrow"><span>雲端存檔</span><span>${BE.kind === 'cloud' ? '已開啟，每次答題自動同步，每天另存一份備份' : '試玩版只存在這台裝置'}</span></div>` +
-      `<div class="setrow"><span>家長密碼</span><span>${FAMILY.parentPin ? '已設定' : '尚未設定'}</span></div>` +
-      `<div class="actions"><button class="pill cream" data-a="pp">變更家長密碼</button>${BE.kind === 'cloud' ? '<button class="pill cream" data-a="rst">寄送重設密碼信</button>' : ''}${KID ? '<button class="pill cream" data-a="exp">匯出目前小朋友的備份</button>' : ''}${BE.kind === 'cloud' ? '<button class="pill purple" data-a="out">登出家長帳號</button>' : ''}</div>`;
-    on(ab, '[data-a=pp]', () => { closeModal(m); setParentPin(() => adminPanel('set'), '輸入家長帳號的登入密碼，再設定新的家長密碼。', true); });
+      `<div class="actions">${BE.kind === 'cloud' ? '<button class="pill cream" data-a="rst">寄送重設密碼信</button>' : ''}${KID ? '<button class="pill cream" data-a="exp">匯出目前小朋友的備份</button>' : ''}${BE.kind === 'cloud' ? '<button class="pill purple" data-a="out">登出家長帳號</button>' : ''}</div>`;
     on(ab, '[data-a=rst]', async () => { try { await BE.reset(USER.email); toast('已寄出重設密碼信到 ' + USER.email); } catch (e) { toast(errMsg(e)); } });
     on(ab, '[data-a=exp]', () => { const blob = new Blob([JSON.stringify({ kid: KID, state: S }, null, 1)], { type: 'application/json' }); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `ambermagic-${KID.nick}-${today()}.json`; a.click(); });
     on(ab, '[data-a=out]', async () => { flushSave(); closeModal(m); KID = null; await BE.logout(); });
