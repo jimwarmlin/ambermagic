@@ -802,3 +802,9 @@ input,textarea,select{-webkit-user-select:text;user-select:text;-webkit-touch-ca
 .pd-cols.few .pd-col{width:calc(var(--u)*110);height:calc(var(--u)*110)}
 /* 沒有帽子原畫的動物：商店帽子疊在頭上 */
 .sprite .dollbox img.dl-hat{left:20%;width:60%;height:auto;transform:translateY(-62%)}
+/* 小鳥音樂亭：我的歌 */
+.songsec{margin:calc(var(--u)*14) 0 calc(var(--u)*6);font-weight:400;font-size:calc(var(--u)*26);color:#8a4f6b}
+.songsec small{font-size:calc(var(--u)*18);color:#9a8a80;margin-left:calc(var(--u)*8)}
+.uchip.mine{position:relative;background:linear-gradient(#fffaf0,#ffeef7)}
+.uchip.mine .del{position:absolute;right:calc(var(--u)*-8);top:calc(var(--u)*-8);width:calc(var(--u)*34);height:calc(var(--u)*34);border-radius:50%;background:#fff;border:calc(var(--u)*2) solid #e7b9c9;color:#c25485;font-style:normal;font-size:calc(var(--u)*18);display:flex;align-items:center;justify-content:center}
+.uchip.add{border-style:dashed!important;background:#fffdf8}

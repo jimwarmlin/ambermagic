@@ -7,7 +7,7 @@ const IMG = Object.assign({
   starA: 'img/star_a.webp', starB: 'img/star_b.webp', bearHappy: 'img/bear_happy.webp', bearWow: 'img/bear_wow.webp',
   bearThink: 'img/bear_think.webp', avatar: 'img/avatar.webp', bearBody: 'img/bear_body.webp', gate: 'img/gate.webp', frameWide: 'img/frame_wide.webp', frameCard: 'img/frame_card.webp', hallChinese: 'img/hall_chinese.webp', hallScience: 'img/hall_science.webp', hallMarket: 'img/hall_market.webp', boss: 'img/boss.webp', forest: 'img/forest.webp', mathMap: 'img/mathmap.webp', music: 'img/music_stage.webp', shopBg: 'img/shop_bg.webp', homeBg: 'img/home_bg.webp', badgeBg: 'img/badge_bg.webp', statusBg: 'img/status_bg.webp'
 }, window.INLINE_IMG || {});
-const AV = '11130900'; const vq = u => (u && !String(u).startsWith('data:')) ? u + '?v=' + AV : u;
+const AV = '11131000'; const vq = u => (u && !String(u).startsWith('data:')) ? u + '?v=' + AV : u;
 Object.keys(IMG).forEach(k => { IMG[k] = vq(IMG[k]); });
 // 道具小圖示（img/icon/）
 const icon = (n, cls = 'ic') => `<img class="${cls}" src="${vq('img/icon/' + n + '.webp')}" alt="">`;
@@ -1175,6 +1175,72 @@ const SONGS2 = [
   { id: 'x5', name: '五的乘法', bpm: 108, lines: ['五一得五', '五二一十', '五三十五', '五四二十', '五五二五', '五六三十', '五七三五', '五八四十', '五九四五'] },
   { id: 'idiom', name: '成語拍拍手', bpm: 96, lines: ['一心一意', '守株待兔', '對牛彈琴', '井底之蛙', '亡羊補牢', '畫蛇添足', '五顏六色', '七嘴八舌'] }
 ];
+/* ---------- 小鳥音樂亭：自己的歌（從這台裝置選音樂檔，自動抓節拍做成關卡；只存在這台裝置） ---------- */
+const MySongs = (() => {
+  const DB = 'bw-songs', ST = 'songs'; let dbp = null;
+  function db() { if (!dbp) dbp = new Promise((res, rej) => { const r = indexedDB.open(DB, 1); r.onupgradeneeded = () => r.result.createObjectStore(ST, { keyPath: 'id' }); r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error); }); return dbp; }
+  const tx = async (mode, fn) => { const d = await db(); return new Promise((res, rej) => { const t = d.transaction(ST, mode); const st = t.objectStore(ST); const r = fn(st); t.oncomplete = () => res(r && r.result); t.onerror = () => rej(t.error); }); };
+  return {
+    list: async () => { try { const all = await tx('readonly', st => st.getAll()); return (all || []).map(x => ({ id: x.id, name: x.name, bpm: x.bpm, dur: x.dur, n: x.notes.length })).sort((a, b) => a.name.localeCompare(b.name)); } catch (e) { return []; } },
+    get: id => tx('readonly', st => st.get(id)),
+    put: rec => tx('readwrite', st => st.put(rec)),
+    del: id => tx('readwrite', st => st.delete(id))
+  };
+})();
+// 自動抓節拍：能量變化（onset）→ 自相關估 BPM → 找拍點相位 → 挑一段最熱鬧的 75 秒，在拍點上放音符
+function analyzeSong(buf) {
+  const sr = buf.sampleRate, ch = buf.numberOfChannels, len = buf.length;
+  const a = buf.getChannelData(0), b2 = ch > 1 ? buf.getChannelData(1) : null;
+  const hop = Math.round(sr / 100), nF = Math.floor(len / hop) - 1, fps = sr / hop;   // 每秒 100 格
+  const en = new Float32Array(nF); let lp = 0;
+  for (let f = 0; f < nF; f++) { let e = 0; const o = f * hop; for (let i = 0; i < hop; i++) { const v = b2 ? (a[o + i] + b2[o + i]) * 0.5 : a[o + i]; lp += 0.25 * (v - lp); e += lp * lp * 0.6 + v * v * 0.4; } en[f] = Math.sqrt(e / hop); }
+  const fl = new Float32Array(nF); for (let f = 1; f < nF; f++) fl[f] = Math.max(0, en[f] - en[f - 1]);
+  // 平滑＋扣掉局部平均，留下明顯的拍點
+  const on = new Float32Array(nF); const W = 20; let acc = 0;
+  for (let f = 0; f < nF; f++) { acc += fl[f]; if (f >= W) acc -= fl[f - W]; on[f] = Math.max(0, fl[f] - acc / Math.min(W, f + 1) * 1.1); }
+  // BPM：自相關，限制在 75~165，偏好 90~140
+  let best = 0, bestLag = 50;
+  for (let bpm = 75; bpm <= 165; bpm += 0.5) {
+    const lag = fps * 60 / bpm; let sc = 0;
+    for (let f = Math.ceil(lag * 2); f < nF; f += 2) { const l = f - lag, i0 = Math.floor(l), fr = l - i0; sc += on[f] * (on[i0] * (1 - fr) + on[i0 + 1] * fr) + 0.5 * on[f] * (on[Math.floor(f - 2 * lag)] || 0); }
+    const pref = bpm >= 90 && bpm <= 140 ? 1.08 : 1; sc *= pref; if (sc > best) { best = sc; bestLag = lag; }
+  }
+  const bpm = Math.round(fps * 60 / bestLag * 10) / 10, beat = 60 / bpm;
+  // 挑最熱鬧的一段（約 75 秒；歌比較短就用整首）
+  const segLen = Math.min(75, Math.max(20, buf.duration - 4)); const segF = Math.floor(segLen * fps);
+  let bestS = 0, sum = 0, bestSum = -1; const step = Math.floor(fps);
+  const cum = new Float32Array(nF + 1); for (let f = 0; f < nF; f++) cum[f + 1] = cum[f] + en[f];
+  for (let f = Math.floor(fps * 3); f + segF < nF; f += step) { sum = cum[f + segF] - cum[f]; if (sum > bestSum) { bestSum = sum; bestS = f; } }
+  // 拍點相位
+  let bestPh = 0, phSc = -1; const lagF = bestLag;
+  for (let ph = 0; ph < lagF; ph += 1) { let sc = 0; for (let x = bestS + ph; x < bestS + segF && x < nF; x += lagF) sc += on[Math.round(x)]; if (sc > phSc) { phSc = sc; bestPh = ph; } }
+  const start = (bestS + bestPh) / fps;
+  // 音符：每一拍取強度，太快的歌改成每兩拍一個；強度太弱的拍略過；每 8 拍的最後一個做成長按
+  const every = bpm > 132 ? 2 : 1, beats = []; let strong = [];
+  for (let t = 0; t < segLen - beat; t += beat * every) { const f = Math.round((start + t) * fps); let m = 0; for (let k = -3; k <= 3; k++) m = Math.max(m, on[f + k] || 0); beats.push({ t, s: m }); strong.push(m); }
+  strong = strong.slice().sort((x, y) => x - y); const thr = strong[Math.floor(strong.length * 0.3)] || 0;
+  const SYM = ['♪', '♫', '★', '♥', '♪', '✿'];
+  const notes = []; let i = 0, k = 0;
+  while (i < beats.length) {
+    const bt = beats[i];
+    if (bt.s < thr && i % 2) { i++; continue; }
+    const phraseEnd = (i + 1) % (8 / every) === 0 || (i + 2) % (8 / every) === 0 && i % 4 === 2;
+    if ((i + 1) % Math.round(8 / every) === 0 && i + 2 < beats.length) { notes.push({ t: bt.t, ch: '♥', dur: beat * every * 1.5 }); i += 2; k++; continue; }
+    notes.push({ t: bt.t, ch: SYM[k++ % SYM.length], dur: 0 }); i++;
+  }
+  return { bpm, start, dur: segLen, notes };
+}
+async function addMySong(file) {
+  const ab = await file.arrayBuffer();
+  const buf = await AC().decodeAudioData(ab.slice(0));
+  const an = analyzeSong(buf);
+  const id = 'my' + Date.now().toString(36);
+  const name = file.name.replace(/\.[^.]+$/, '').replace(/[_\s-]*\d{2,3}k$/i, '').replace(/[（(\[][^）)\]]*(official|audio|video|music|lyrics?|mv)[^）)\]]*[）)\]]/ig, '')
+    .replace(/\b(official\s*)?(music\s*)?(video|audio|mv|lyric video)\b/ig, '').replace(/\bofficial\b/ig, '').replace(/\s+/g, ' ').replace(/^[\s\-–|]+|[\s\-–|]+$/g, '').trim().slice(0, 24) || '我的歌';
+  await MySongs.put(Object.assign({ id, name, data: ab, added: Date.now() }, an));
+  return { id, name, bpm: an.bpm, n: an.notes.length };
+}
+
 function buildMusic() {
   const s = screen('music', 'music');
   // 背景沒有畫小鳥，三隻小鳥是獨立角色，分開站在舞台上，不會再重疊
@@ -1202,9 +1268,29 @@ function buildMusic() {
   const startBtn = el('button', 'pill', s, '選歌開始'); place(startBtn, 554, 960, 340, 96); startBtn.onclick = () => { SFX.tap(); pickSong(); };
   const HIT = { x: 135, y: 877 }, SPAWN_X = 1390, LEAD = 4;
   let G3 = null;
-  function pickSong() {
-    const { c, m } = modal(`<h2>小鳥音樂亭・選一首歌</h2><p class="muted">音符跑到左邊的圓圈時，點一下螢幕！越準越好：<b class="gP">Perfect</b>＞<b class="gG">Good</b>＞<b class="gB">Bad</b>，沒點到是 Miss。<b>有長尾巴的音符要按住不放</b>，等尾巴跑完再放開。跟著節奏唸出來會更準喔。</p><div class="uchips">${SONGS2.map(sg => `<button class="uchip" data-s="${sg.id}"><b>${sg.name}</b><small>${(S.unitStars || {})['音樂|' + sg.id] ? starStr(S.unitStars['音樂|' + sg.id]) : '尚未挑戰'}</small></button>`).join('')}</div>`, { wide: true });
-    c.querySelectorAll('[data-s]').forEach(b => b.onclick = () => { closeModal(m); startSong(SONGS2.find(x => x.id === b.dataset.s)); });
+  async function pickSong() {
+    const mine = await MySongs.list();
+    const star = id => (S.unitStars || {})['音樂|' + id];
+    const { c, m } = modal(`<h2>小鳥音樂亭・選一首歌</h2><p class="muted">音符跑到左邊的圓圈時，點一下螢幕！越準越好：<b class="gP">Perfect</b>＞<b class="gG">Good</b>＞<b class="gB">Bad</b>，沒點到是 Miss。<b>有長尾巴的音符要按住不放</b>，等尾巴跑完再放開。</p>` +
+      `<h3 class="songsec">唸謠關卡</h3><div class="uchips">${SONGS2.map(sg => `<button class="uchip" data-s="${sg.id}"><b>${sg.name}</b><small>${star(sg.id) ? starStr(star(sg.id)) : '尚未挑戰'}</small></button>`).join('')}</div>` +
+      `<h3 class="songsec">我的歌<small>（只存在這台裝置）</small></h3><div class="uchips">${mine.map(sg => `<button class="uchip mine" data-my="${sg.id}"><b>${esc(sg.name)}</b><small>${star(sg.id) ? starStr(star(sg.id)) : `${Math.round(sg.bpm)} BPM・${sg.n} 個音符`}</small><i class="del" data-del="${sg.id}" aria-label="刪除">✕</i></button>`).join('')}` +
+      `<button class="uchip add" data-a="add"><b>＋ 加入自己的歌</b><small>從這台裝置選音樂檔</small></button></div><input type="file" accept="audio/*,.mp3,.m4a,.aac,.wav" hidden>`, { wide: true });
+    c.querySelectorAll('[data-s]').forEach(bt => bt.onclick = () => { closeModal(m); startSong(SONGS2.find(x => x.id === bt.dataset.s)); });
+    c.querySelectorAll('[data-my]').forEach(bt => bt.onclick = async e => {
+      if (e.target.closest('[data-del]')) return;
+      closeModal(m); say('準備音樂中…', 'hi', 1500);
+      try { const rec = await MySongs.get(bt.dataset.my); const buf = await AC().decodeAudioData(rec.data.slice(0)); startSong({ id: rec.id, name: rec.name, bpm: rec.bpm, custom: true, buffer: buf, start: rec.start, dur: rec.dur, notes: rec.notes }); }
+      catch (err) { toast('這首歌讀不到，請刪掉再加一次'); }
+    });
+    c.querySelectorAll('[data-del]').forEach(x => x.onclick = e => { e.stopPropagation(); adultGate(async () => { await MySongs.del(x.dataset.del); toast('已刪除'); closeModal(m); pickSong(); }, '刪除歌曲要家長確認'); });
+    const fin = c.querySelector('input[type=file]');
+    on(c, '[data-a=add]', () => adultGate(() => fin.click(), '加入自己的歌要家長確認'));
+    fin.onchange = async () => {
+      const f = fin.files && fin.files[0]; if (!f) return;
+      const addBtn = c.querySelector('[data-a=add] b'); addBtn.textContent = '分析節拍中…';
+      try { const r = await addMySong(f); toast(`加好了！「${r.name}」${Math.round(r.bpm)} BPM、${r.n} 個音符`); closeModal(m); pickSong(); }
+      catch (err) { addBtn.textContent = '＋ 加入自己的歌'; toast('這個檔案打不開，請換 mp3 或 m4a 檔'); }
+    };
   }
   const PENTA = [523, 587, 659, 784, 880, 1047, 1175, 1319];
   function ping(f, t, v = 0.12, len = 0.25, type = 'triangle') { try { const c = AC(), o = c.createOscillator(), g = c.createGain(); o.type = type; o.frequency.value = f; g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(v, t + 0.01); g.gain.exponentialRampToValueAtTime(0.0001, t + len); o.connect(g).connect(c.destination); o.start(t); o.stop(t + len + 0.05); } catch (e) {} }
@@ -1212,14 +1298,22 @@ function buildMusic() {
     if (timeUp()) return showTimeUp();
     Music.duck(true, 0);
     const c = AC(), beat = 60 / sg.bpm, t0 = c.currentTime + 0.4 + LEAD * beat;
-    const notes = []; let b = 0;
-    sg.lines.forEach(line => { const chs = [...line]; chs.forEach((ch, j) => { notes.push({ t: t0 + b * beat, ch, hit: false, miss: false, dur: j === chs.length - 1 ? beat * 1.5 : 0 }); b++; }); b++; });
-    const end = t0 + b * beat + 1;
+    const notes = []; let b = 0, end, src = null;
+    if (sg.custom) {
+      sg.notes.forEach(n => notes.push({ t: t0 + n.t, ch: n.ch, hit: false, miss: false, dur: n.dur || 0 }));
+      end = t0 + sg.dur + 0.8;
+      const g = c.createGain(); g.gain.value = 0.9; g.connect(c.destination);
+      src = c.createBufferSource(); src.buffer = sg.buffer; src.connect(g); src.start(t0, sg.start, sg.dur + 0.6);
+      g.gain.setValueAtTime(0.9, t0 + sg.dur - 2); g.gain.linearRampToValueAtTime(0.0001, t0 + sg.dur + 0.5);   // 結尾淡出
+    } else {
+      sg.lines.forEach(line => { const chs = [...line]; chs.forEach((ch, j) => { notes.push({ t: t0 + b * beat, ch, hit: false, miss: false, dur: j === chs.length - 1 ? beat * 1.5 : 0 }); b++; }); b++; });
+      end = t0 + b * beat + 1;
+      for (let k = 0; k < b; k++) ping(110, t0 + k * beat, k % 4 === 0 ? 0.18 : 0.09, 0.12, 'sine');
+    }
     for (let i = 0; i < LEAD; i++) ping(i === LEAD - 1 ? 1047 : 784, c.currentTime + 0.4 + i * beat, 0.1, 0.12, 'square');
-    for (let k = 0; k < b; k++) ping(110, t0 + k * beat, k % 4 === 0 ? 0.18 : 0.09, 0.12, 'sine');
     const travel = 2.6, PXS = (SPAWN_X - HIT.x) / travel; // 音符每秒移動的距離
     notes.forEach(n => { n.el = el('div', 'rnote' + (n.dur ? ' hold' : ''), lane, (n.dur ? `<i class="tail" style="width:calc(var(--u)*${Math.round(n.dur * PXS)})"></i>` : '') + `<span>${esc(n.ch)}</span>`); n.el.style.display = 'none'; n.tail = n.el.querySelector('.tail'); });
-    G3 = { sg, notes, beat, end, perfect: 0, good: 0, bad: 0, miss: 0, holdOK: 0, raf: 0, holding: null, lastBeat: -1, PXS };
+    G3 = { sg, notes, beat, end, perfect: 0, good: 0, bad: 0, miss: 0, holdOK: 0, raf: 0, holding: null, lastBeat: -1, PXS, src };
     lane.style.pointerEvents = 'auto'; startBtn.style.display = 'none'; say(`「${sg.name}」準備，3、2、1！`, 'happy', 2200); birdPose(true);
     (function frame() {
       if (!G3) return; const now = c.currentTime;
@@ -1273,7 +1367,7 @@ function buildMusic() {
   lane.addEventListener('pointerdown', e => { if (!G3) return; e.preventDefault(); if (G3.holding) return; downId = e.pointerId; try { lane.setPointerCapture(e.pointerId); } catch (err) {} tap(); });
   const release = e => { if (e.pointerId !== downId) return; downId = null; const h = G3 && G3.holding; if (h) holdDone(h.t + h.dur - AC().currentTime < 0.15); };
   lane.addEventListener('pointerup', release); lane.addEventListener('pointercancel', release);
-  function stopSong(silent) { if (!G3) return; cancelAnimationFrame(G3.raf); lane.innerHTML = ''; lane.style.pointerEvents = 'none'; G3 = null; downId = null; hitRing.classList.remove('holding'); startBtn.style.display = ''; scoreEl.textContent = ''; birdPose(false); Music.duck(false); }
+  function stopSong(silent) { if (!G3) return; cancelAnimationFrame(G3.raf); if (G3.src) { try { G3.src.stop(); } catch (e) {} } lane.innerHTML = ''; lane.style.pointerEvents = 'none'; G3 = null; downId = null; hitRing.classList.remove('holding'); startBtn.style.display = ''; scoreEl.textContent = ''; birdPose(false); Music.duck(false); }
   function finishSong() {
     const g = G3, n = g.notes.length, hits = g.perfect + g.good + g.bad; stopSong();
     const ratio = (g.perfect + g.good * 0.6 + g.bad * 0.2) / n; const stars = ratio >= 0.9 ? 3 : ratio >= 0.65 ? 2 : 1;
