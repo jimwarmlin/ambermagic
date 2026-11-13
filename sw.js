@@ -1,7 +1,7 @@
 // 兔兔魔法世界 service worker
 // 網頁本身：先上網拿最新版（3 秒內沒回應就用備份）
 // 圖片、程式、題庫（網址帶 ?v= 版本號）：直接用備份，版本號一換就會重新下載
-const CACHE = 'bunny-world-11082100';
+const CACHE = 'bunny-world-11130900';
 self.addEventListener('install', e => { self.skipWaiting(); });
 self.addEventListener('activate', e => {
   e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k !== CACHE).map(k => caches.delete(k)))).then(() => self.clients.claim()));
