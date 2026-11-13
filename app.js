@@ -7,7 +7,7 @@ const IMG = Object.assign({
   starA: 'img/star_a.webp', starB: 'img/star_b.webp', bearHappy: 'img/bear_happy.webp', bearWow: 'img/bear_wow.webp',
   bearThink: 'img/bear_think.webp', avatar: 'img/avatar.webp', bearBody: 'img/bear_body.webp', gate: 'img/gate.webp', frameWide: 'img/frame_wide.webp', frameCard: 'img/frame_card.webp', hallChinese: 'img/hall_chinese.webp', hallScience: 'img/hall_science.webp', hallMarket: 'img/hall_market.webp', boss: 'img/boss.webp', forest: 'img/forest.webp', mathMap: 'img/mathmap.webp', music: 'img/music_stage.webp', shopBg: 'img/shop_bg.webp', homeBg: 'img/home_bg.webp', badgeBg: 'img/badge_bg.webp', statusBg: 'img/status_bg.webp'
 }, window.INLINE_IMG || {});
-const AV = '11131100'; const vq = u => (u && !String(u).startsWith('data:')) ? u + '?v=' + AV : u;
+const AV = '11131200'; const vq = u => (u && !String(u).startsWith('data:')) ? u + '?v=' + AV : u;
 Object.keys(IMG).forEach(k => { IMG[k] = vq(IMG[k]); });
 // 道具小圖示（img/icon/）
 const icon = (n, cls = 'ic') => `<img class="${cls}" src="${vq('img/icon/' + n + '.webp')}" alt="">`;
