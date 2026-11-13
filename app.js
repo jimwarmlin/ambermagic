@@ -7,7 +7,7 @@ const IMG = Object.assign({
   starA: 'img/star_a.webp', starB: 'img/star_b.webp', bearHappy: 'img/bear_happy.webp', bearWow: 'img/bear_wow.webp',
   bearThink: 'img/bear_think.webp', avatar: 'img/avatar.webp', bearBody: 'img/bear_body.webp', gate: 'img/gate.webp', frameWide: 'img/frame_wide.webp', frameCard: 'img/frame_card.webp', hallChinese: 'img/hall_chinese.webp', hallScience: 'img/hall_science.webp', hallMarket: 'img/hall_market.webp', boss: 'img/boss.webp', forest: 'img/forest.webp', mathMap: 'img/mathmap.webp', music: 'img/music_stage.webp', shopBg: 'img/shop_bg.webp', homeBg: 'img/home_bg.webp', badgeBg: 'img/badge_bg.webp', statusBg: 'img/status_bg.webp'
 }, window.INLINE_IMG || {});
-const AV = '11131000'; const vq = u => (u && !String(u).startsWith('data:')) ? u + '?v=' + AV : u;
+const AV = '11131100'; const vq = u => (u && !String(u).startsWith('data:')) ? u + '?v=' + AV : u;
 Object.keys(IMG).forEach(k => { IMG[k] = vq(IMG[k]); });
 // 道具小圖示（img/icon/）
 const icon = (n, cls = 'ic') => `<img class="${cls}" src="${vq('img/icon/' + n + '.webp')}" alt="">`;
@@ -1187,6 +1187,27 @@ const MySongs = (() => {
     del: id => tx('readwrite', st => st.delete(id))
   };
 })();
+// 雲端版：歌存在家庭帳號（全家的裝置都能玩），這台裝置留一份快取；試玩版：只存在這台裝置
+const SongStore = {
+  cloud: () => BE.kind === 'cloud' && !!BE.uid(),
+  async list() {
+    const local = await MySongs.list(); if (!this.cloud()) return local;
+    let remote = null; try { remote = await BE.songsList(); } catch (e) {}
+    if (!remote) return local;
+    const ids = new Set(remote.map(x => x.id));
+    // 更新前只存在這台裝置的歌：自動補傳到家庭帳號
+    local.filter(x => !ids.has(x.id)).forEach(x => { this.upload(x.id).catch(() => {}); });
+    return remote.map(x => ({ id: x.id, name: x.name, bpm: x.bpm, dur: x.dur, n: (x.notes || []).length })).concat(local.filter(x => !ids.has(x.id))).sort((a, b) => a.name.localeCompare(b.name));
+  },
+  async upload(id, onProg) { const r = await MySongs.get(id); if (!r) return; const { data, ...meta } = r; await BE.songPut(meta, new Uint8Array(data), onProg); },
+  async get(id) {
+    let r = await MySongs.get(id); if (r) return r;
+    if (!this.cloud()) return null;
+    r = await BE.songGet(id); if (r) { try { await MySongs.put(r); } catch (e) {} } return r;
+  },
+  async add(file, onProg) { const r = await addMySong(file); if (this.cloud()) { try { await this.upload(r.id, onProg); r.synced = true; } catch (e) { r.synced = false; } } return r; },
+  async del(id) { await MySongs.del(id); if (this.cloud()) await BE.songDel(id); }
+};
 // 自動抓節拍：能量變化（onset）→ 自相關估 BPM → 找拍點相位 → 挑一段最熱鬧的 75 秒，在拍點上放音符
 function analyzeSong(buf) {
   const sr = buf.sampleRate, ch = buf.numberOfChannels, len = buf.length;
@@ -1269,27 +1290,27 @@ function buildMusic() {
   const HIT = { x: 135, y: 877 }, SPAWN_X = 1390, LEAD = 4;
   let G3 = null;
   async function pickSong() {
-    const mine = await MySongs.list();
+    const mine = await SongStore.list(), cloud = SongStore.cloud();
     const star = id => (S.unitStars || {})['音樂|' + id];
     const { c, m } = modal(`<h2>小鳥音樂亭・選一首歌</h2><p class="muted">音符跑到左邊的圓圈時，點一下螢幕！越準越好：<b class="gP">Perfect</b>＞<b class="gG">Good</b>＞<b class="gB">Bad</b>，沒點到是 Miss。<b>有長尾巴的音符要按住不放</b>，等尾巴跑完再放開。</p>` +
       `<h3 class="songsec">唸謠關卡</h3><div class="uchips">${SONGS2.map(sg => `<button class="uchip" data-s="${sg.id}"><b>${sg.name}</b><small>${star(sg.id) ? starStr(star(sg.id)) : '尚未挑戰'}</small></button>`).join('')}</div>` +
-      `<h3 class="songsec">我的歌<small>（只存在這台裝置）</small></h3><div class="uchips">${mine.map(sg => `<button class="uchip mine" data-my="${sg.id}"><b>${esc(sg.name)}</b><small>${star(sg.id) ? starStr(star(sg.id)) : `${Math.round(sg.bpm)} BPM・${sg.n} 個音符`}</small><i class="del" data-del="${sg.id}" aria-label="刪除">✕</i></button>`).join('')}` +
+      `<h3 class="songsec">我的歌<small>${cloud ? '（存在家庭帳號，全家的裝置都能玩）' : '（只存在這台裝置）'}</small></h3><div class="uchips">${mine.map(sg => `<button class="uchip mine" data-my="${sg.id}"><b>${esc(sg.name)}</b><small>${star(sg.id) ? starStr(star(sg.id)) : `${Math.round(sg.bpm)} BPM・${sg.n} 個音符`}</small><i class="del" data-del="${sg.id}" aria-label="刪除">✕</i></button>`).join('')}` +
       `<button class="uchip add" data-a="add"><b>＋ 加入自己的歌</b><small>從這台裝置選音樂檔</small></button></div><input type="file" accept="audio/*,.mp3,.m4a,.aac,.wav" hidden>`, { wide: true });
     c.querySelectorAll('[data-s]').forEach(bt => bt.onclick = () => { closeModal(m); startSong(SONGS2.find(x => x.id === bt.dataset.s)); });
     c.querySelectorAll('[data-my]').forEach(bt => bt.onclick = async e => {
       if (e.target.closest('[data-del]')) return;
       closeModal(m); say('準備音樂中…', 'hi', 1500);
-      try { const rec = await MySongs.get(bt.dataset.my); const buf = await AC().decodeAudioData(rec.data.slice(0)); startSong({ id: rec.id, name: rec.name, bpm: rec.bpm, custom: true, buffer: buf, start: rec.start, dur: rec.dur, notes: rec.notes }); }
+      try { const rec = await SongStore.get(bt.dataset.my); if (!rec) throw new Error('missing'); const buf = await AC().decodeAudioData(rec.data.slice(0)); startSong({ id: rec.id, name: rec.name, bpm: rec.bpm, custom: true, buffer: buf, start: rec.start, dur: rec.dur, notes: rec.notes }); }
       catch (err) { toast('這首歌讀不到，請刪掉再加一次'); }
     });
-    c.querySelectorAll('[data-del]').forEach(x => x.onclick = e => { e.stopPropagation(); adultGate(async () => { await MySongs.del(x.dataset.del); toast('已刪除'); closeModal(m); pickSong(); }, '刪除歌曲要家長確認'); });
+    c.querySelectorAll('[data-del]').forEach(x => x.onclick = e => { e.stopPropagation(); adultGate(async () => { try { await SongStore.del(x.dataset.del); toast('已刪除'); } catch (e) { toast('刪除失敗，請檢查網路'); } closeModal(m); pickSong(); }, '刪除歌曲要家長確認'); });
     const fin = c.querySelector('input[type=file]');
     on(c, '[data-a=add]', () => adultGate(() => fin.click(), '加入自己的歌要家長確認'));
     fin.onchange = async () => {
       const f = fin.files && fin.files[0]; if (!f) return;
       const addBtn = c.querySelector('[data-a=add] b'); addBtn.textContent = '分析節拍中…';
-      try { const r = await addMySong(f); toast(`加好了！「${r.name}」${Math.round(r.bpm)} BPM、${r.n} 個音符`); closeModal(m); pickSong(); }
-      catch (err) { addBtn.textContent = '＋ 加入自己的歌'; toast('這個檔案打不開，請換 mp3 或 m4a 檔'); }
+      try { const r = await SongStore.add(f, p => { addBtn.textContent = `上傳到家庭帳號 ${Math.round(p * 100)}%`; }); toast(r.synced === false ? `「${r.name}」已存在這台裝置，網路恢復後會自動上傳到家庭帳號` : `加好了！「${r.name}」${Math.round(r.bpm)} BPM、${r.n} 個音符`); closeModal(m); pickSong(); }
+      catch (err) { addBtn.textContent = '＋ 加入自己的歌'; toast(String(err && err.code || '').includes('permission') ? '沒有權限上傳，請重新登入家長帳號' : String(err && err.name) === 'EncodingError' ? '這個檔案打不開，請換 mp3 或 m4a 檔' : '加入失敗，請檢查網路後再試'); }
     };
   }
   const PENTA = [523, 587, 659, 784, 880, 1047, 1175, 1319];
@@ -1783,6 +1804,23 @@ const FB = (() => {
     listFamilies: () => db.collection('families').get().then(q => q.docs.map(d => Object.assign({ uid: d.id }, d.data()))),
     kidsOf: uid => db.collection('families').doc(uid).collection('kids').get().then(q => q.docs.map(d => Object.assign({ id: d.id }, d.data()))),
     setFamilyOf: (uid, f) => db.collection('families').doc(uid).set(f, { merge: true }),
+    // 我的歌：只存在自己家庭帳號底下，安全規則只允許本人讀寫
+    songsList: () => fam().collection('songs').get().then(q => q.docs.map(d => Object.assign({ id: d.id }, d.data()))),
+    songPut: async (meta, u8, onProg) => {
+      const ref = fam().collection('songs').doc(meta.id), CHK = 700 * 1024, n = Math.ceil(u8.length / CHK);
+      for (let i = 0; i < n; i++) { await ref.collection('chunks').doc(String(i)).set({ b: firebase.firestore.Blob.fromUint8Array(u8.subarray(i * CHK, (i + 1) * CHK)) }); if (onProg) onProg((i + 1) / n); }
+      await ref.set(Object.assign({}, meta, { chunks: n, size: u8.length }));   // 最後才寫目錄，沒傳完的歌不會出現在清單
+    },
+    songGet: async id => {
+      const ref = fam().collection('songs').doc(id), m = await ref.get(); if (!m.exists) return null;
+      const d = m.data(), u8 = new Uint8Array(d.size); let o = 0;
+      for (let i = 0; i < d.chunks; i++) { const p = (await ref.collection('chunks').doc(String(i)).get()).data().b.toUint8Array(); u8.set(p, o); o += p.length; }
+      return Object.assign({ id }, d, { data: u8.buffer });
+    },
+    songDel: async id => {
+      const ref = fam().collection('songs').doc(id); await ref.delete();
+      const q = await ref.collection('chunks').get(); for (const d of q.docs) await d.ref.delete();
+    },
     deleteFamily: async uid => {
       const famRef = db.collection('families').doc(uid); const ks = await famRef.collection('kids').get();
       for (const k of ks.docs) { for (const sub of ['answers', 'snapshots']) { let q; do { q = await k.ref.collection(sub).limit(300).get(); const b = db.batch(); q.docs.forEach(d => b.delete(d.ref)); if (q.size) await b.commit(); } while (q.size); } await k.ref.delete(); }
@@ -1811,7 +1849,8 @@ const LOCALBE = (() => {
     group: () => ok(null), createGroup: () => Promise.reject(new Error('local')), setMember: () => ok(), members: () => ok([]),
     approve: () => ok(), removeMember: () => ok(), uid: () => 'local',
     listFamilies: () => ok([Object.assign({ uid: 'local', email: '這台裝置' }, db.family)]), kidsOf: () => ok(Object.entries(db.kids).map(([id, k]) => Object.assign({ id }, k))),
-    setFamilyOf: (u, f) => { Object.assign(db.family, f); sv(); return ok(); }, deleteFamily: () => { db.kids = {}; db.answers = {}; sv(); return ok(); }
+    setFamilyOf: (u, f) => { Object.assign(db.family, f); sv(); return ok(); }, deleteFamily: () => { db.kids = {}; db.answers = {}; sv(); return ok(); },
+    songsList: () => ok(null), songPut: () => ok(), songGet: () => ok(null), songDel: () => ok()
   };
 })();
 const BE = FB || LOCALBE;
